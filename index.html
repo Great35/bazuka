@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazuka Herbal Care - Your Personal Herbal Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chat-container { 
+            height: 70vh; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            overflow-y: auto;
+        }
+        .chat-message { 
+            max-width: 80%; 
+            animation: slideIn 0.5s ease forwards; 
+            opacity: 0; 
+        }
+        .bot-message { 
+            background-color: #f3f4f6; 
+            border-radius: 18px 18px 18px 0; 
+            transform-origin: bottom left; 
+        }
+        .user-message { 
+            background-color: #127a04; 
+            color: white; 
+            border-radius: 18px 18px 0 18px; 
+        }
+        .product-card { 
+            transition: all 0.3s ease; 
+        }
+        .product-card:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+        }
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .typing-indicator span { 
+            display: inline-block; 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background-color: #6b7280; 
+            margin: 0 2px; 
+            animation: bounce 1.4s infinite ease-in-out; 
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 
+            0%, 80%, 100% { transform: translateY(0); } 
+            40% { transform: translateY(-8px); } 
+        }
+        .carousel { 
+            overflow: hidden; 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+        .carousel-inner { 
+            display: flex; 
+            animation: slide 15s infinite; 
+        }
+        .carousel-item { 
+            flex: 0 0 100%; 
+            text-align: center; 
+        }
+        @keyframes slide { 
+            0%, 20% { transform: translateX(0); } 
+            25%, 45% { transform: translateX(-100%); } 
+            50%, 70% { transform: translateX(-200%); } 
+            75%, 95% { transform: translateX(-300%); } 
+            100% { transform: translateX(0); } 
+        }
+        .upload-area { 
+            cursor: pointer; 
+        }
+        .popup { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 20px; 
+            transform: translateX(-100%); 
+            animation: slideInPopup 0.5s ease forwards 2s; 
+        }
+        @keyframes slideInPopup { 
+            from { transform: translateX(-100%); } 
+            to { transform: translateX(0); } 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Popup -->
+    <div id="marketingPopup" class="hidden popup bg-emerald-600 text-white rounded-lg p-4 max-w-xs z-30">
+        <button id="closePopup" class="absolute top-1 right-1 text-white"><i class="fas fa-times"></i></button>
+        <p id="popupText" class="text-sm"></p>
+    </div>
+
+    <!-- Landing Page with Carousel -->
+    <div id="landing" class="min-h-screen flex flex-col items-center justify-center px-4 text-center transition-opacity duration-500">
+        <div class="max-w-2xl mx-auto">
+            <div class="mb-8">
+                <i class="fas fa-leaf text-6xl text-emerald-600 mb-4"></i>
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome to Bazuka Herbal Care</h1>
+                <p class="text-xl text-gray-600 mb-8">Discover nature's healing power with our premium herbal products.</p>
+            </div>
+            <div class="carousel mb-8">
+                <div class="carousel-inner">
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1529310399831-ed472b81d589" alt="Tea" class="w-full h-48 object-cover rounded-lg mb-2">
+                        <p class="text-gray-600">"Energize Tea gave me life!" - Jane D.</p>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1595341595379-cf2df1f21083" alt="Capsules" class="w-full h-48 object-cover rounded-lg mb-2">
+                        <p class="text-gray-600">"Capsules are a game-changer!" - Mike S.</p>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae" alt="Mix" class="w-full h-48 object-cover rounded-lg mb-2">
+                        <p class="text-gray-600">"Immunity Mix saved my winter!" - Sarah K.</p>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Herbs" class="w-full h-48 object-cover rounded-lg mb-2">
+                        <p class="text-gray-600">"Best herbal care ever!" - Tom R.</p>
+                    </div>
+                </div>
+            </div>
+            <button id="startChatBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center mx-auto">
+                <i class="fas fa-comment-dots mr-2"></i> Chat with BazukaBot
+            </button>
+        </div>
+        <div class="absolute bottom-8 text-gray-500 text-sm">
+            <p>Your personal herbal care assistant</p>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div id="chatInterface" class="hidden fixed inset-0 bg-white z-10 flex flex-col">
+        <div class="bg-emerald-600 text-white p-4 flex items-center justify-between shadow-md">
+            <div class="flex items-center">
+                <button id="backToLanding" class="mr-4 text-white"><i class="fas fa-arrow-left"></i></button>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center mr-3">
+                        <i class="fas fa-leaf text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold">BazukaBot</h2>
+                        <p class="text-xs opacity-80">Online</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="chatContainer" class="chat-container flex-1 p-4 bg-gray-100">
+            <div class="max-w-3xl w-full space-y-4"></div>
+        </div>
+        <div class="bg-white border-t border-gray-200 p-4">
+            <div class="max-w-3xl mx-auto flex flex-wrap gap-2">
+                <button id="viewProductsBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">View Products</button>
+                <button id="cartBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Check Cart</button>
+                <button id="helpBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Need Help?</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Modal -->
+    <div id="whatsappModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Need more help?</h3>
+                <button id="closeWhatsappModal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="text-gray-600 mb-6">Our WhatsApp support team can assist you further.</p>
+            <a href="https://wa.me/1234567890" target="_blank" class="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-3 px-4 rounded-lg font-medium transition-colors">
+                <i class="fab fa-whatsapp mr-2"></i> Chat on WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4 overflow-y-auto">
+        <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="relative">
+                <img id="modalProductImage" src="" alt="Product" class="w-full h-48 object-cover rounded-t-lg">
+                <button id="closeProductModal" class="absolute top-3 right-3 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full w-8 h-8 flex items-center justify-center shadow">
+                    <i class="fas fa-times text-gray-800"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 id="modalProductName" class="text-xl font-bold text-gray-800"></h3>
+                    <span id="modalProductPrice" class="text-emerald-600 font-bold"></span>
+                </div>
+                <p id="modalProductDescription" class="text-gray-600 mb-4"></p>
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+                    <p class="text-sm text-yellow-700"><span class="font-bold">Limited stock:</span> Only <span id="modalStock"></span> left!</p>
+                </div>
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-800 mb-2">Key Benefits:</h4>
+                    <ul id="modalProductBenefits" class="list-disc list-inside text-gray-600 space-y-1"></ul>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="addToCartBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">Add to Cart</button>
+                    <button id="buyNowBtn" class="flex-1 bg-gray-800 hover:bg-gray-900 text-white py-3 px-4 rounded-lg font-medium transition-colors">Buy Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4 overflow-y-auto">
+        <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">Complete Your Order</h3>
+                    <button id="closeCheckoutModal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-800 mb-3">Your Items:</h4>
+                    <div id="cartItems" class="space-y-3"></div>
+                </div>
+                <div class="border-t border-gray-200 pt-4 mb-6">
+                    <div class="flex justify-between mb-2"><span class="text-gray-600">Subtotal</span><span id="subtotal" class="font-medium">$0.00</span></div>
+                    <div class="flex justify-between mb-2"><span class="text-gray-600">Shipping</span><span class="font-medium">$5.00</span></div>
+                    <div class="flex justify-between text-lg font-bold mt-3"><span>Total</span><span id="total" class="text-emerald-600">$5.00</span></div>
+                </div>
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-800 mb-3">Payment Instructions:</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                        <p class="text-sm text-gray-600 mb-2">Send payment to this account:</p>
+                        <p class="font-mono bg-white p-2 rounded text-sm mb-1">Account: 1234567890</p>
+                        <p class="font-mono bg-white p-2 rounded text-sm">Bank: Bazuka Herbal Bank</p>
+                    </div>
+                    <div id="uploadArea" class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-4 text-center mb-3">
+                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                        <p id="uploadText" class="text-gray-500 text-sm">Click here to upload payment proof</p>
+                        <input type="file" id="paymentProof" class="hidden" accept="image/*">
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="termsCheck" class="mr-2">
+                        <label for="termsCheck" class="text-sm text-gray-600">I agree to the terms</label>
+                    </div>
+                </div>
+                <button id="confirmPaymentBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50" disabled>Submit Payment Proof</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipping Details Modal -->
+    <div id="shippingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4 overflow-y-auto">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Shipping Details</h3>
+                <button id="closeShippingModal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input id="fullName" type="text" class="w-full p-2 border rounded-lg" placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea id="address" class="w-full p-2 border rounded-lg" placeholder="123 Herbal Lane, Green City"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input id="phoneNumber" type="tel" class="w-full p-2 border rounded-lg" placeholder="+1234567890">
+                </div>
+                <button id="submitShippingBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg font-medium transition-colors mt-6">Submit Shipping Info</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 text-center">
+            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-emerald-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Order Confirmed!</h3>
+            <p class="text-gray-600 mb-6">Thank you! Your order has been received and will be processed soon.</p>
+            <div class="flex space-x-3">
+                <button id="closeConfirmationModal" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg font-medium transition-colors">Continue Shopping</button>
+                <button id="downloadInvoiceBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"><i class="fas fa-download mr-2"></i> Invoice</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const landingPage = document.getElementById('landing');
+        const chatInterface = document.getElementById('chatInterface');
+        const startChatBtn = document.getElementById('startChatBtn');
+        const backToLanding = document.getElementById('backToLanding');
+        const chatContainer = document.getElementById('chatContainer');
+        const viewProductsBtn = document.getElementById('viewProductsBtn');
+        const cartBtn = document.getElementById('cartBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        const whatsappModal = document.getElementById('whatsappModal');
+        const closeWhatsappModal = document.getElementById('closeWhatsappModal');
+        const productModal = document.getElementById('productModal');
+        const closeProductModal = document.getElementById('closeProductModal');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        const buyNowBtn = document.getElementById('buyNowBtn');
+        const checkoutModal = document.getElementById('checkoutModal');
+        const closeCheckoutModal = document.getElementById('closeCheckoutModal');
+        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+        const shippingModal = document.getElementById('shippingModal');
+        const closeShippingModal = document.getElementById('closeShippingModal');
+        const submitShippingBtn = document.getElementById('submitShippingBtn');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const closeConfirmationModal = document.getElementById('closeConfirmationModal');
+        const downloadInvoiceBtn = document.getElementById('downloadInvoiceBtn');
+        const termsCheck = document.getElementById('termsCheck');
+        const paymentProof = document.getElementById('paymentProof');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadText = document.getElementById('uploadText');
+        const fullName = document.getElementById('fullName');
+        const address = document.getElementById('address');
+        const phoneNumber = document.getElementById('phoneNumber');
+        const marketingPopup = document.getElementById('marketingPopup');
+        const closePopup = document.getElementById('closePopup');
+        const popupText = document.getElementById('popupText');
+
+        const products = [
+            { id: 1, name: "Energize Tea", price: 25, description: "A revitalizing blend made from natural herbs to keep you energized all day!", benefits: ["Boosts stamina", "Supports vitality", "100% natural", "No additives"], stock: 4, rating: 4.5, reviews: 42, image: "https://images.unsplash.com/photo-1529310399831-ed472b81d589" },
+            { id: 2, name: "Herbal Energy Capsules", price: 32, description: "Powerful capsules for sustained energy and mental clarity.", benefits: ["Enhances focus", "Natural caffeine alternative", "Supports adrenal health", "Vegan"], stock: 7, rating: 4.2, reviews: 28, image: "https://images.unsplash.com/photo-1595341595379-cf2df1f21083" },
+            { id: 3, name: "Immunity Booster Mix", price: 28, description: "A potent blend to strengthen your immune system naturally.", benefits: ["Rich in antioxidants", "Supports respiratory health", "Contains elderberry", "Great for colds"], stock: 3, rating: 4.7, reviews: 56, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae" },
+            { id: 4, name: "Calm Sleep Tincture", price: 20, description: "A soothing herbal mix to help you relax and sleep better.", benefits: ["Promotes relaxation", "Improves sleep quality", "All natural", "Non-habit forming"], stock: 5, rating: 4.6, reviews: 33, image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c" },
+            { id: 5, name: "Digestive Bliss Powder", price: 22, description: "A gentle herbal powder to support digestion and gut health.", benefits: ["Aids digestion", "Reduces bloating", "Natural ingredients", "Easy to use"], stock: 6, rating: 4.4, reviews: 19, image: "https://images.unsplash.com/photo-1543362906-acfc16c67564" },
+            { id: 6, name: "Vitality Root Tonic", price: 30, description: "A robust tonic to boost overall vitality and wellness.", benefits: ["Enhances energy", "Supports immunity", "Rich in vitamins", "Herbal blend"], stock: 2, rating: 4.8, reviews: 47, image: "https://images.unsplash.com/photo-1596040033229-a9821ebd39b6" }
+        ];
+
+        const botGreetings = [
+            "Oga, welcome o! You don land where herbs dey give power like juju!",
+            "My guy, you don enter Bazuka Herbal Care! Na here energy dey flow like river!",
+            "Bros, how far? These herbal things go make you shine like new kobo!",
+            "Chief, you don come o! These herbs go lift you up like Lagos breeze!",
+            "Abeg, make we gist! These herbal goodies go make your body sing!",
+            "My paddy, you don see am! Bazuka herbs go make you strong like ogbono soup!"
+        ];
+
+        const botProductLines = [
+            "See these fine herbs, ehn! Pick one before dem finish o!",
+            "Oya, check these herbal vibes—dem dey hot like pepper soup!",
+            "Bros, see wetin I get for you—herbs wey dey bam like fela!",
+            "These ones na correct o! Take your time, but no sleep on am!",
+            "Abeg, look these herbal treasures—na fire for your body!",
+            "My guy, these herbs dey call you—choose quick before stock vanish!"
+        ];
+
+        const botCartLines = [
+            "Kai, your cart empty like dry season! Oya, pick something na!",
+            "You get {count} things o! E sweet me—ready to pay?",
+            "Bros, your cart dey smile with {count} items! Time to finish am?",
+            "Oga, you don pack {count} herbs! Make we wrap am up?",
+            "My guy, {count} items dey wait! You go check out or add more?",
+            "See your cart o, {count} herbal goodies! Let’s close this deal na!"
+        ];
+
+        const nigerianNames = [
+            "Chinedu", "Tunde", "Ngozi", "Emeka", "Bisi", "Kemi", "Segun", "Amaka", "Olamide", "Chukwudi",
+            "Sola", "Funke", "Uche", "Tope", "Aisha", "Ifeanyi", "Yemi", "Chika", "Bola", "Obi",
+            "Tayo", "Ada", "Femi", "Nkechi", "Dapo", "Chioma", "Kunle", "Ebere", "Seyi", "Oge",
+            "Wale", "Nneka", "Bayo", "Ugo", "Kelechi", "Tolu", "Ranti", "Onyeka", "Deji", "Ijeoma",
+            "Lekan", "Chinyere", "Temi", "Nonso", "Bimbo", "Kalu", "Shade", "Olu", "Efe", "Ify",
+            "Sani", "Amarachi", "Dotun", "Nnamdi", "Ronke", "Ebuka", "Titi", "Uzor", "Yinka", "Chisom",
+            "Lanre", "Nkiru", "Jide", "Ogechi", "Bukky", "Ikenna", "Funmi", "Chidi", "Remi", "Obinna",
+            "Tola", "Ejiro", "Sammy", "Nedu", "Kike", "Emmanuel", "Tosin", "Uduak", "Yusuf", "Chinwe",
+            "Seun", "Aminatu", "Kola", "Ogonna", "Biodun", "Eunice", "Timi", "Uju", "Damilola", "Chigozie",
+            "Pelumi", "Anita", "Sule", "Ozioma", "Dayo", "Blessing", "Gbenga", "Mmesoma", "Hassan", "Zainab"
+        ];
+
+        let cart = [];
+        let currentProduct = null;
+        let paymentProofFile = null;
+
+        const TELEGRAM_BOT_TOKEN = '7944192630:AAEr7UaD8Lfp377fo7gtiMze7nwKDskCFBg';
+        const TELEGRAM_CHAT_ID = '7285227786';
+
+        function initChat() {
+            landingPage.classList.add('hidden');
+            chatInterface.classList.remove('hidden');
+            setTimeout(() => {
+                addBotMessage(botGreetings[Math.floor(Math.random() * botGreetings.length)]);
+                setTimeout(() => showProductCards(products), 2000);
+                setTimeout(() => {
+                    const randomName = nigerianNames[Math.floor(Math.random() * nigerianNames.length)];
+                    popupText.textContent = `${randomName} dey use Energize Tea to scatter tiredness o! You nko?`;
+                    marketingPopup.classList.remove('hidden');
+                }, 3000);
+            }, 500);
+        }
+
+        function addBotMessage(text, delay = 0) {
+            setTimeout(() => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message bot-message p-4 self-start';
+                messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div><p>${text}</p></div></div>`;
+                chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, delay);
+        }
+
+        function showProductCards(products) {
+            const productsDiv = document.createElement('div');
+            productsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'; // Responsive: 1 column on mobile, 2 on md+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-lg overflow-hidden shadow cursor-pointer border border-gray-100';
+                productCard.innerHTML = `<img src="${product.image}" alt="${product.name}" class="w-full h-32 object-cover"><div class="p-3"><h4 class="font-medium text-gray-800 truncate">${product.name}</h4><div class="flex justify-between items-center mt-1"><span class="text-emerald-600 font-bold">$${product.price}</span><span class="text-xs text-gray-500">${product.stock} left</span></div><button class="view-product-btn mt-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-1 px-3 rounded text-sm transition-colors" data-id="${product.id}">View Details</button></div>`;
+                productsDiv.appendChild(productCard);
+            });
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot-message p-4 self-start';
+            messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div><p>${botProductLines[Math.floor(Math.random() * botProductLines.length)]}</p>${productsDiv.outerHTML}</div></div>`;
+            chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            document.querySelectorAll('.view-product-btn').forEach(btn => {
+                btn.addEventListener('click', () => showProductDetails(parseInt(btn.getAttribute('data-id'))));
+            });
+        }
+
+        function showProductDetails(productId) {
+            const product = products.find(p => p.id === productId);
+            currentProduct = product;
+            document.getElementById('modalProductName').textContent = product.name;
+            document.getElementById('modalProductPrice').textContent = `$${product.price}`;
+            document.getElementById('modalProductDescription').textContent = product.description;
+            document.getElementById('modalProductImage').src = product.image;
+            document.getElementById('modalStock').textContent = product.stock;
+            const benefitsList = document.getElementById('modalProductBenefits');
+            benefitsList.innerHTML = '';
+            product.benefits.forEach(benefit => {
+                const li = document.createElement('li');
+                li.textContent = benefit;
+                benefitsList.appendChild(li);
+            });
+            productModal.classList.remove('hidden');
+            setTimeout(() => {
+                addBotMessage(`Ehen, ${product.name}! Only ${product.stock} dey o—abeg no let am pass you by!`);
+            }, 1500);
+        }
+
+        function addToCart(product) {
+            cart.push(product);
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            cartItemsContainer.innerHTML = '';
+            let subtotal = 0;
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'flex justify-between items-center py-2 border-b border-gray-100';
+                cartItem.innerHTML = `<div class="flex items-center"><img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded mr-3"><div><h5 class="text-sm font-medium">${item.name}</h5><p class="text-xs text-gray-500">1 × $${item.price}</p></div></div><span class="font-medium">$${item.price}</span>`;
+                cartItemsContainer.appendChild(cartItem);
+                subtotal += item.price;
+            });
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${(subtotal + 5).toFixed(2)}`;
+        }
+
+        async function sendToTelegram(message, file = null) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('text', message);
+
+            if (file) {
+                const photoUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+                const photoFormData = new FormData();
+                photoFormData.append('chat_id', TELEGRAM_CHAT_ID);
+                photoFormData.append('photo', file);
+                const photoResponse = await fetch(photoUrl, { method: 'POST', body: photoFormData });
+                if (!photoResponse.ok) throw new Error('Failed to send photo');
+            }
+
+            const response = await fetch(url, { method: 'POST', body: formData });
+            if (!response.ok) throw new Error('Failed to send message');
+        }
+
+        startChatBtn.addEventListener('click', initChat);
+
+        backToLanding.addEventListener('click', () => {
+            chatInterface.classList.add('hidden');
+            landingPage.classList.remove('hidden');
+            marketingPopup.classList.add('hidden');
+        });
+
+        viewProductsBtn.addEventListener('click', () => {
+            const typingIndicator = showTypingIndicator();
+            setTimeout(() => {
+                hideTypingIndicator(typingIndicator);
+                addBotMessage("Oya, see all the good good we get—abeg no dull!");
+                setTimeout(() => showProductCards(products), 2000);
+            }, 1500);
+        });
+
+        cartBtn.addEventListener('click', () => {
+            const typingIndicator = showTypingIndicator();
+            setTimeout(() => {
+                hideTypingIndicator(typingIndicator);
+                if (cart.length === 0) {
+                    addBotMessage("Kai, your cart empty like dry season! Oya, pick something na!");
+                } else {
+                    const line = botCartLines[Math.floor(Math.random() * botCartLines.length)].replace('{count}', cart.length);
+                    addBotMessage(line);
+                    setTimeout(() => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'chat-message bot-message p-4 self-start';
+                        messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div class="flex space-x-2"><button class="checkout-btn bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">Checkout Now</button><button class="continue-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Add More</button></div></div>`;
+                        chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        const checkoutBtn = messageDiv.querySelector('.checkout-btn');
+                        const continueBtn = messageDiv.querySelector('.continue-btn');
+                        checkoutBtn.addEventListener('click', () => {
+                            checkoutModal.classList.remove('hidden');
+                            addBotMessage("Oya, let’s wrap this thing up sharp sharp!");
+                        });
+                        continueBtn.addEventListener('click', () => {
+                            addBotMessage("Correct! Make we add more jare!");
+                            setTimeout(() => showProductCards(products), 2000);
+                        });
+                    }, 1500);
+                }
+            }, 1500);
+        });
+
+        helpBtn.addEventListener('click', () => {
+            const typingIndicator = showTypingIndicator();
+            setTimeout(() => {
+                hideTypingIndicator(typingIndicator);
+                addBotMessage("You dey confuse? Abeg, DM us for WhatsApp—na we go solve am!");
+                setTimeout(() => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'chat-message bot-message p-4 self-start';
+                    messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div><button id="whatsappRedirectBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm transition-colors"><i class="fab fa-whatsapp mr-2"></i> Chat on WhatsApp</button></div></div>`;
+                    chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    document.getElementById('whatsappRedirectBtn').addEventListener('click', () => whatsappModal.classList.remove('hidden'));
+                }, 1500);
+            }, 1500);
+        });
+
+        addToCartBtn.addEventListener('click', () => {
+            addToCart(currentProduct);
+            productModal.classList.add('hidden');
+            const typingIndicator = showTypingIndicator();
+            setTimeout(() => {
+                hideTypingIndicator(typingIndicator);
+                addBotMessage(`Na so! ${currentProduct.name} don enter your cart o! You wan check out or add more?`);
+                setTimeout(() => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'chat-message bot-message p-4 self-start';
+                    messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div class="flex space-x-2"><button class="checkout-btn bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">Checkout</button><button class="continue-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Keep Shopping</button></div></div>`;
+                    chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    const checkoutBtn = messageDiv.querySelector('.checkout-btn');
+                    const continueBtn = messageDiv.querySelector('.continue-btn');
+                    checkoutBtn.addEventListener('click', () => {
+                        checkoutModal.classList.remove('hidden');
+                        addBotMessage("Oya, let’s finish this thing quick quick!");
+                    });
+                    continueBtn.addEventListener('click', () => {
+                        addBotMessage("You too sabi! Oya, wetin else you want?");
+                        setTimeout(() => showProductCards(products), 2000);
+                    });
+                }, 1500);
+            }, 1500);
+        });
+
+        buyNowBtn.addEventListener('click', () => {
+            addToCart(currentProduct);
+            productModal.classList.add('hidden');
+            checkoutModal.classList.remove('hidden');
+            setTimeout(() => {
+                addBotMessage(`Sharp guy! Straight to checkout with ${currentProduct.name}—let’s do this fast!`);
+            }, 1500);
+        });
+
+        closeProductModal.addEventListener('click', () => {
+            productModal.classList.add('hidden');
+            setTimeout(() => {
+                addBotMessage("Wetin happen na? You no want am again? Another person go chop am o!");
+            }, 1500);
+        });
+
+        closeWhatsappModal.addEventListener('click', () => whatsappModal.classList.add('hidden'));
+
+        closeCheckoutModal.addEventListener('click', () => {
+            checkoutModal.classList.add('hidden');
+            setTimeout(() => {
+                addBotMessage("Ah ah, you dey run? No leave your cart hanging like that na!");
+            }, 1500);
+        });
+
+        closeShippingModal.addEventListener('click', () => {
+            shippingModal.classList.add('hidden');
+            setTimeout(() => {
+                addBotMessage("Abeg, no forget to tell us where to send your package o!");
+            }, 1500);
+        });
+
+        closeConfirmationModal.addEventListener('click', () => {
+            confirmationModal.classList.add('hidden');
+            addBotMessage("Correct! You don shop finish—wetin next?");
+        });
+
+        termsCheck.addEventListener('change', () => {
+            confirmPaymentBtn.disabled = !termsCheck.checked || !paymentProofFile;
+        });
+
+        uploadArea.addEventListener('click', () => {
+            paymentProof.click();
+        });
+
+        paymentProof.addEventListener('change', () => {
+            if (paymentProof.files.length > 0) {
+                paymentProofFile = paymentProof.files[0];
+                uploadText.innerHTML = `<i class="fas fa-check-circle text-green-500 text-xl mr-2"></i>${paymentProofFile.name}`;
+                confirmPaymentBtn.disabled = !termsCheck.checked;
+            }
+        });
+
+        confirmPaymentBtn.addEventListener('click', () => {
+            if (!paymentProofFile) {
+                addBotMessage("Oga, where your payment proof na? Upload am first!");
+                return;
+            }
+            checkoutModal.classList.add('hidden');
+            shippingModal.classList.remove('hidden');
+            setTimeout(() => {
+                addBotMessage("Ehen, I don see your proof! Where we go send these goodies?");
+            }, 1500);
+        });
+
+        submitShippingBtn.addEventListener('click', async () => {
+            if (!fullName.value || !address.value || !phoneNumber.value) {
+                addBotMessage("Abeg, fill everything o! We no fit guess your house!");
+                return;
+            }
+
+            shippingModal.classList.add('hidden');
+            const typingIndicator = showTypingIndicator();
+
+            const orderDetails = cart.map(item => `${item.name} - $${item.price}`).join('\n');
+            const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+            const shippingInfo = `Full Name: ${fullName.value}\nAddress: ${address.value}\nPhone: ${phoneNumber.value}`;
+            const message = `New Order:\n\nItems:\n${orderDetails}\n\nTotal: $${total.toFixed(2)}\n\nShipping:\n${shippingInfo}`;
+
+            try {
+                await sendToTelegram(message, paymentProofFile);
+                setTimeout(() => {
+                    hideTypingIndicator(typingIndicator);
+                    addBotMessage("Chai, you too much! Order don land—thanks for choosing Bazuka!");
+                    confirmationModal.classList.remove('hidden');
+                    cart = [];
+                    paymentProofFile = null;
+                    fullName.value = '';
+                    address.value = '';
+                    phoneNumber.value = '';
+                    uploadText.innerHTML = 'Click here to upload payment proof';
+                    termsCheck.checked = false;
+                    confirmPaymentBtn.disabled = true;
+                }, 1500);
+            } catch (error) {
+                hideTypingIndicator(typingIndicator);
+                addBotMessage("Oops! Something scatter—try again or ping us for WhatsApp!");
+                console.error(error);
+            }
+        });
+
+        downloadInvoiceBtn.addEventListener('click', () => {
+            alert("Invoice downloaded! (Demo - no real file)");
+        });
+
+        closePopup.addEventListener('click', () => marketingPopup.classList.add('hidden'));
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message bot-message p-4 self-start';
+            typingDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+            chatContainer.querySelector('.max-w-3xl').appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return typingDiv;
+        }
+
+        function hideTypingIndicator(typingDiv) {
+            typingDiv.remove();
+        }
+    </script>
+</body>
+</html>
