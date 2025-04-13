@@ -3,696 +3,1716 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazuka Herbal Care - Your Personal Herbal Assistant</title>
+    <title>Bazuka Herbal Care - Chat to Wellness</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .chat-container { 
-            height: 70vh; 
-            transition: all 0.3s ease; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
+        /* Define CSS Variables for Consistency */
+        :root {
+            --primary-color: #1C7D3F; /* Requested green color */
+            --primary-hover: #165f32; /* Darker green for hover */
+            --secondary-bg: #202c33; /* Dark gray for modals */
+            --dark-bg:#0c0a0d; /* Dark background for body */
+            --chat-bg: #2e69394f; /* Slightly lighter dark for chat messages */
+            --text-color: #e5e6e7; /* Light gray for text readability */
+            --accent-color: #ff4d4f; /* Red for remove buttons */
+            --accent-hover: #e63946; /* Darker red for hover */
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --border-radius: 12px;
+            --transition: all 0.2s ease-in-out;
+        }
+    
+        body {
+            scroll-behavior: smooth;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 14px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+    
+        * {
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+    
+        .hidden {
+            display: none !important;
+        }
+    
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    
+        /* Chat Container */
+        .chat-container {
+            height: calc(100vh - 112px);
             overflow-y: auto;
+            background-color: var(--dark-bg);
+            padding-bottom: 16px;
+            padding-top: 64px;
+            margin-top: 56px;
+            margin-bottom: 56px;
         }
-        .chat-message { 
-            max-width: 80%; 
-            animation: slideIn 0.5s ease forwards; 
-            opacity: 0; 
+    
+        /* Chat Header */
+        .chat-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            z-index: 110;
+            background-color: var(--secondary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
         }
-        .bot-message { 
-            background-color: #f3f4f6; 
-            border-radius: 18px 18px 18px 0; 
-            transform-origin: bottom left; 
+    
+        .chat-header h1 {
+            font-size: 18px;
+            margin: 0;
         }
-        .user-message { 
-            background-color: #127a04; 
-            color: white; 
-            border-radius: 18px 18px 0 18px; 
+    
+        /* Chat Messages */
+        .chat-message {
+            max-width: 75%;
+            animation: slideIn 0.3s ease forwards;
+            opacity: 0;
+            margin: 4px 12px;
         }
-        .product-card { 
-            transition: all 0.3s ease; 
+    
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .product-card:hover { 
-            transform: scale(1.05); 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+    
+        .bot-message {
+            background-color: var(--chat-bg);
+            color: var(--text-color);
+            border-radius: 18px 18px 18px 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            line-height: 18px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
-        @keyframes slideIn { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
+    
+        .bot-message p {
+            display: inline-block;
+            animation: typeText 2s steps(60, end) forwards;
+            white-space: pre-wrap;
+            overflow: hidden;
         }
-        .typing-indicator span { 
-            display: inline-block; 
-            width: 8px; 
-            height: 8px; 
-            border-radius: 50%; 
-            background-color: #6b7280; 
-            margin: 0 2px; 
-            animation: bounce 1.4s infinite ease-in-out; 
+    
+        @keyframes typeText {
+            from { width: 0; }
+            to { width: 100%; }
         }
+    
+        .user-message {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: 18px 18px 4px 18px;
+            padding: 8px 12px;
+            font-size: 14px;
+            line-height: 18px;
+            margin-left: auto;
+            box-shadow: var(--shadow);
+        }
+    
+        /* Product Card */
+        .product-card {
+            transition: transform 0.2s ease;
+            background-color: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 160px;
+            margin: 0 auto;
+            text-align: center;
+        }
+    
+        .product-card:hover,
+        .product-card:active {
+            transform: scale(1.02);
+        }
+    
+        .product-card img {
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            object-fit: cover;
+            width: 100%;
+            height: 100px;
+        }
+    
+        .low-stock {
+            border: 2px solid var(--accent-color);
+            animation: pulse 2s infinite ease-in-out;
+        }
+    
+        @keyframes pulse {
+            0%, 100% { border-color: var(--accent-color); }
+            50% { border-color: #ff6b6b; }
+        }
+    
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            padding: 8px;
+        }
+    
+        /* Typing Indicator */
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin: 0 2px;
+            animation: bounce 0.8s infinite ease-in-out;
+        }
+    
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes bounce { 
-            0%, 80%, 100% { transform: translateY(0); } 
-            40% { transform: translateY(-8px); } 
+    
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
         }
-        .carousel { 
-            overflow: hidden; 
-            position: relative; 
-            width: 100%; 
-            max-width: 600px; 
-            margin: 0 auto; 
+    
+        /* Popup */
+        .popup {
+            position: fixed;
+            bottom: 72px;
+            left: 12px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: var(--border-radius);
+            padding: 8px 12px;
+            animation: slideInPopup 0.5s ease forwards;
+            z-index: 100;
+            font-size: 13px;
+            max-width: 280px;
+            box-shadow: var(--shadow);
         }
-        .carousel-inner { 
-            display: flex; 
-            animation: slide 15s infinite; 
+    
+        @keyframes slideInPopup {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
         }
-        .carousel-item { 
-            flex: 0 0 100%; 
-            text-align: center; 
+    
+        /* Modal Styles - Fixed Product Modal */
+        #productModal {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        @keyframes slide { 
-            0%, 20% { transform: translateX(0); } 
-            25%, 45% { transform: translateX(-100%); } 
-            50%, 70% { transform: translateX(-200%); } 
-            75%, 95% { transform: translateX(-300%); } 
-            100% { transform: translateX(0); } 
+    
+        #productModal:not(.hidden) {
+            display: flex; /* Show when hidden class is removed */
         }
-        .upload-area { 
-            cursor: pointer; 
+    
+        #productModal.show {
+            display: flex; /* Fallback for if JavaScript adds 'show' class */
         }
-        .popup { 
-            position: fixed; 
-            bottom: 20px; 
-            left: 20px; 
-            transform: translateX(-100%); 
-            animation: slideInPopup 0.5s ease forwards 2s; 
+    
+        .modal-content,
+        .bg-\[\#202c33\].rounded-lg {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border-radius: var(--border-radius);
+            border: none;
+            width: 100%;
+            max-width: 343px;
+            margin: 0 auto;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            position: relative;
         }
-        @keyframes slideInPopup { 
-            from { transform: translateX(-100%); } 
-            to { transform: translateX(0); } 
+    
+        .modal-content img {
+            border-radius: var(--border-radius);
+            object-fit: cover;
+            width: 100%;
+            height: 160px;
+        }
+    
+        .product-modal .btn {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+    
+        .product-modal .btn:hover {
+            background-color: var(--primary-hover);
+        }
+    
+        /* Cart Preview */
+        .cart-preview {
+            position: fixed;
+            bottom: 72px;
+            right: 12px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            cursor: pointer;
+        }
+    
+        .cart-preview:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.1);
+        }
+    
+        .cart-preview span {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-color);
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+    
+        /* Buyer Alert */
+        .buyer-modal {
+            position: fixed;
+            top: 128px;
+            left: 12px;
+            background: var(--primary-color);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 18px;
+            animation: fadeInOut 3s ease forwards;
+            z-index: 100;
+            font-size: 13px;
+            box-shadow: var(--shadow);
+        }
+    
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(16px); }
+            10%, 90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(16px); }
+        }
+    
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--secondary-bg);
+            border-top: 1px solid #2a3942;
+            justify-content: space-around;
+            padding: 8px 0;
+            height: 56px;
+            z-index: 100;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+        }
+    
+        .chat-active .bottom-nav {
+            display: flex;
+        }
+    
+        .nav-item {
+            color: #8696a0;
+            transition: color 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            gap: 4px;
+            cursor: pointer;
+        }
+    
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+    
+        .nav-item i {
+            font-size: 24px;
+        }
+    
+        .nav-item:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+    
+        /* Float Icon */
+        .float-icon {
+            position: fixed;
+            bottom: 128px;
+            right: 12px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            cursor: pointer;
+        }
+    
+        .float-icon:hover {
+            background-color: var(--primary-hover);
+            transform: rotate(360deg);
+        }
+    
+        /* Testimonials Carousel */
+        .testimonials-carousel .inner {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 16px;
+        }
+    
+        .testimonials-carousel .inner > div {
+            flex: 0 0 280px;
+            max-width: 280px;
+            margin: 0 8px;
+            scroll-snap-align: start;
+            background: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+    
+        .testimonials-carousel img {
+            object-fit: cover;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+        }
+    
+        /* Star Rating */
+        .star-rating i {
+            color: #ffd700;
+            cursor: pointer;
+            font-size: 20px;
+            margin: 0 2px;
+            transition: transform 0.2s ease;
+        }
+    
+        .star-rating i:hover {
+            transform: scale(1.2);
+        }
+    
+        /* Buttons */
+        .btn {
+            min-height: 44px;
+            border-radius: var(--border-radius);
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 44px;
+            text-align: center;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            box-shadow: var(--shadow);
+        }
+    
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+    
+        /* General Image Styles */
+        img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+    
+        /* Cart Modal */
+        #cartModal .bg-\[\#202c33\] {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border-radius: var(--border-radius);
+            border: none;
+            width: 100%;
+            max-width: 343px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+    
+        #cartModal .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #2a3942;
+            transition: background-color 0.3s ease;
+        }
+    
+        #cartModal .cart-item:hover {
+            background-color: #2a3942;
+        }
+    
+        #cartModal .cart-item img {
+            border-radius: var(--border-radius);
+            object-fit: cover;
+            width: 48px;
+            height: 48px;
+        }
+    
+        #cartModal .cart-item p {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+    
+        #cartModal .cart-item .btn {
+            padding: 0 12px;
+            min-height: 36px;
+            line-height: 36px;
+            font-size: 13px;
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+    
+        #cartModal .cart-item .btn:hover {
+            background-color: var(--primary-hover);
+        }
+    
+        #cartModal .cart-item .remove-btn {
+            background-color: var(--accent-color);
+        }
+    
+        #cartModal .cart-item .remove-btn:hover {
+            background-color: var(--accent-hover);
+        }
+    
+        /* Shipping Modal */
+        #shippingModal .bg-\[\#202c33\] {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border-radius: var(--border-radius);
+            border: none;
+            width: 100%;
+            max-width: 343px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+    
+        #shippingModal input,
+        #shippingModal textarea {
+            background-color: var(--chat-bg);
+            border: 1px solid #2a3942;
+            border-radius: 8px;
+            padding: 8px;
+            color: var(--text-color);
+            width: 100%;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+    
+        #shippingModal input:focus,
+        #shippingModal textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+    
+        /* Payment Modal */
+        #paymentModal .bg-\[\#202c33\] {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border-radius: var(--border-radius);
+            border: none;
+            width: 100%;
+            max-width: 343px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+    
+        #paymentModal .space-y-4 > div {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+    
+        #paymentModal .text-sm {
+            font-size: 14px;
+            line-height: 18px;
+        }
+    
+        #paymentModal input[type="file"] {
+            padding: 8px;
+            border: 1px solid #2a3942;
+            border-radius: 8px;
+            background-color: var(--chat-bg);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+    
+        #paymentModal .btn {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: var(--border-radius);
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 44px;
+            text-align: center;
+        }
+    
+        #paymentModal .btn:hover {
+            background-color: var(--primary-hover);
+        }
+    
+        #paymentModal .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--chat-bg);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--primary-color);
+        }
+    
+        #paymentModal .copy-btn i {
+            font-size: 16px;
+        }
+    
+        #paymentModal .agreement {
+            color: var(--primary-color);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    
+        #paymentModal .agreement:hover {
+            color: var(--primary-hover);
+        }
+    
+        /* Media Queries */
+        @media (max-width: 640px) {
+            body { font-size: 14px; }
+            h1 { font-size: 24px; }
+            h2 { font-size: 20px; }
+            .btn {
+                padding: 0 12px;
+                font-size: 14px;
+                min-height: 40px;
+                line-height: 40px;
+            }
+            .chat-container {
+                height: calc(100vh - 112px);
+                margin-top: 56px;
+                margin-bottom: 56px;
+                padding-top: 64px;
+                padding-bottom: 16px;
+            }
+            .chat-message {
+                max-width: 80%;
+                margin: 4px 12px;
+            }
+            .modal-content,
+            .bg-\[\#202c33\].rounded-lg {
+                max-width: 343px;
+                padding: 16px;
+            }
+            .bottom-nav {
+                padding: 8px 0;
+                height: 56px;
+            }
+            .nav-item { font-size: 10px; }
+            .product-card { max-width: 160px; }
+        }
+    
+        @media (min-width: 640px) {
+            .testimonials-carousel .inner {
+                overflow-x: hidden;
+                animation: testimonialSlide 30s infinite linear;
+            }
+            .testimonials-carousel .inner > div {
+                flex: 0 0 25%;
+            }
+            .chat-message {
+                max-width: 65%;
+            }
+        }
+    
+        @keyframes testimonialSlide {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+    
+        /* Accessibility */
+        button:focus, a:focus, input:focus, textarea:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+    
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+    
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+    
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-hover);
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
-    <!-- Popup -->
-    <div id="marketingPopup" class="hidden popup bg-emerald-600 text-white rounded-lg p-4 max-w-xs z-30">
-        <button id="closePopup" class="absolute top-1 right-1 text-white"><i class="fas fa-times"></i></button>
-        <p id="popupText" class="text-sm"></p>
-    </div>
+<body>
+    <!-- Audio for Button Clicks -->
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
 
-    <!-- Landing Page with Carousel -->
-    <div id="landing" class="min-h-screen flex flex-col items-center justify-center px-4 text-center transition-opacity duration-500">
-        <div class="max-w-2xl mx-auto">
-            <div class="mb-8">
-                <i class="fas fa-leaf text-6xl text-emerald-600 mb-4"></i>
-                <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome to Bazuka Herbal Care</h1>
-                <p class="text-xl text-gray-600 mb-8">Discover nature's healing power with our premium herbal products.</p>
-            </div>
-            <div class="carousel mb-8">
-                <div class="carousel-inner">
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1529310399831-ed472b81d589" alt="Tea" class="w-full h-48 object-cover rounded-lg mb-2">
-                        <p class="text-gray-600">"Energize Tea gave me life!" - Jane D.</p>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1595341595379-cf2df1f21083" alt="Capsules" class="w-full h-48 object-cover rounded-lg mb-2">
-                        <p class="text-gray-600">"Capsules are a game-changer!" - Mike S.</p>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae" alt="Mix" class="w-full h-48 object-cover rounded-lg mb-2">
-                        <p class="text-gray-600">"Immunity Mix saved my winter!" - Sarah K.</p>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Herbs" class="w-full h-48 object-cover rounded-lg mb-2">
-                        <p class="text-gray-600">"Best herbal care ever!" - Tom R.</p>
-                    </div>
-                </div>
-            </div>
-            <button id="startChatBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center mx-auto">
-                <i class="fas fa-comment-dots mr-2"></i> Chat with BazukaBot
-            </button>
+    <!-- Hero Section -->
+    <section id="landing" class="min-h-screen flex flex-col items-center justify-center px-4 text-center bg-[url('https://images.unsplash.com/photo-1508615070457-7bae93267714')] bg-cover bg-center">
+        <div class="bg-black bg-opacity-60 p-8 rounded-lg">
+            <i class="fas fa-leaf text-5xl text-[#1C7D3F] mb-4" aria-hidden="true"></i>
+            <h1 class="text-3xl font-bold text-white mb-4">Bazuka Herbal Care</h1>
+            <p class="text-lg text-gray-200 mb-6">The wonder working herbs 👌💯</p>
+            <p class="text-sm text-gray-300 mb-4">Certified by NAFDAC</p>
+            <button id="chatBtn" class="btn bg-[#1C7D3F] hover:bg-[#1d5935] text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all" aria-label="Start Chat">Check Now</button>
+            <button id="testimonialsBtn" class="btn bg-[#1f2a44] hover:bg-[#2a3942] text-gray-200 font-semibold py-3 px-8 rounded-lg shadow-lg transition-all mt-4" aria-label="View Testimonials">See Testimonials</button>
         </div>
-        <div class="absolute bottom-8 text-gray-500 text-sm">
-            <p>Your personal herbal care assistant</p>
-        </div>
-    </div>
+    </section>
 
     <!-- Chat Interface -->
-    <div id="chatInterface" class="hidden fixed inset-0 bg-white z-10 flex flex-col">
-        <div class="bg-emerald-600 text-white p-4 flex items-center justify-between shadow-md">
+    <section id="chatInterface" class="hidden min-h-screen flex flex-col">
+        <header class="chat-header bg-[#202c33] p-4 flex items-center justify-between shadow">
             <div class="flex items-center">
-                <button id="backToLanding" class="mr-4 text-white"><i class="fas fa-arrow-left"></i></button>
-                <div class="flex items-center">
-                    <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center mr-3">
-                        <i class="fas fa-leaf text-white"></i>
+                <button id="backToLanding" class="btn mr-3 text-gray-200" aria-label="Back to Home"><i class="fas fa-arrow-left"></i></button>
+                <div class="w-8 h-8 rounded-full bg-[#1C7D3F] flex items-center justify-center mr-2">
+                    <i class="fas fa-leaf text-white text-sm" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <h2 class="font-semibold text-gray-200">BazukaBot</h2>
+                    <p class="text-xs text-gray-400">Your Herb Guide</p>
+                </div>
+            </div>
+            <div id="cartCountDisplay" class="text-xs text-gray-200">Cart: <span id="cartCount">0</span></div>
+        </header>
+        <div id="chatContainer" class="chat-container flex-1 p-4">
+            <div class="max-w-3xl w-full space-y-2 mx-auto"></div>
+        </div>
+    </section>
+
+    <!-- Testimonials Page -->
+    <section id="testimonials" class="hidden min-h-screen p-4 bg-[#111b21]">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="backToChat" class="btn mr-3 text-gray-200" aria-label="Back to Chat"><i class="fas fa-arrow-left"></i> Back to Chat</button>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-200 mb-4">What Our Customers Say</h2>
+            <div class="testimonials-carousel">
+                <div class="inner flex space-x-4">
+                    <div class="p-4 bg-[#202c33] rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce" alt="Emeka" class="w-16 h-16 rounded-full mb-2">
+                        <p class="text-sm font-semibold text-gray-200">Emeka, Abuja</p>
+                        <p class="text-sm text-gray-400">"Bazuka gave me back my bedroom confidence! 😎"</p>
                     </div>
-                    <div>
-                        <h2 class="font-bold">BazukaBot</h2>
-                        <p class="text-xs opacity-80">Online</p>
+                    <div class="p-4 bg-[#202c33] rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7" alt="Ngozi" class="w-16 h-16 rounded-full mb-2">
+                        <p class="text-sm font-semibold text-gray-200">Ngozi, Lagos</p>
+                        <p class="text-sm text-gray-400">"My husband now lasts longer, thanks to Bazuka! 🔥"</p>
+                    </div>
+                    <div class="p-4 bg-[#202c33] rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d" alt="Tunde" class="w-16 h-16 rounded-full mb-2">
+                        <p class="text-sm font-semibold text-gray-200">Tunde, Accra</p>
+                        <p class="text-sm text-gray-400">"No more 2-minute embarrassment! Bazuka works!"</p>
+                    </div>
+                    <div class="p-4 bg-[#202c33] rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330" alt="Funke" class="w-16 h-16 rounded-full mb-2">
+                        <p class="text-sm font-semibold text-gray-200">Funke, Ibadan</p>
+                        <p class="text-sm text-gray-400">"Bazuka is the real deal for men’s health!"</p>
+                    </div>
+                    <div class="p-4 bg-[#202c33] rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e" alt="Chinedu" class="w-16 h-16 rounded-full mb-2">
+                        <p class="text-sm font-semibold text-gray-200">Chinedu, Enugu</p>
+                        <p class="text-sm text-gray-400">"I feel like a king in bed now! Bazuka o!"</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="chatContainer" class="chat-container flex-1 p-4 bg-gray-100">
-            <div class="max-w-3xl w-full space-y-4"></div>
-        </div>
-        <div class="bg-white border-t border-gray-200 p-4">
-            <div class="max-w-3xl mx-auto flex flex-wrap gap-2">
-                <button id="viewProductsBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">View Products</button>
-                <button id="cartBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Check Cart</button>
-                <button id="helpBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Need Help?</button>
+            <div class="text-center mt-4">
+                <a href="https://instagram.com/bazukaherbalcare" target="_blank" class="text-[#1C7D3F] hover:text-[#1d5935] transition-all" aria-label="Follow us on Instagram">
+                    <i class="fab fa-instagram text-2xl"></i>
+                    <p class="text-sm mt-1">Follow @bazukaherbalcare</p>
+                </a>
             </div>
+        </div>
+    </section>
+
+    <!-- Float Icon for Testimonials -->
+    <div id="floatTestimonial" class="float-icon" aria-label="View Testimonials"><i class="fas fa-quote-right"></i></div>
+
+    <!-- Cart Preview -->
+    <div id="cartPreview" class="cart-preview" aria-label="View Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cartPreviewCount" class="hidden">0</span>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button id="toHome" class="nav-item active" aria-label="Home"><i class="fas fa-home"></i><span>Home</span></button>
+        <button id="toCart" class="nav-item" aria-label="Cart"><i class="fas fa-shopping-cart"></i><span>Cart</span></button>
+        <button id="toDistributor" class="nav-item" aria-label="Become a Seller"><i class="fas fa-hand-holding-usd"></i><span>Sell</span></button>
+        <button id="toHelp" class="nav-item" aria-label="Help"><i class="fas fa-question-circle"></i><span>Help</span></button>
+    </nav>
+
+    <!-- Buyer Alert Modal -->
+    <div id="buyerModal" class="hidden buyer-modal"></div>
+
+    <!-- Popups -->
+    <div id="samplePopup" class="hidden popup max-w-xs">
+        <button id="closeSamplePopup" class="btn absolute top-1 right-1 text-white" aria-label="Close Popup"><i class="fas fa-times"></i></button>
+        <p class="text-sm">Free herb sample with your buy!</p>
+        <button id="claimSample" class="btn mt-2 bg-[#202c33] text-[#1C7D3F] py-1 px-3 rounded text-sm">Claim Now</button>
+    </div>
+
+    <!-- Modals -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-[#202c33] rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-200">Your Cart</h3>
+                <button id="closeCartModal" class="btn text-gray-400 hover:text-gray-200" aria-label="Close Cart"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="cartItems" class="space-y-4"></div>
+            <div id="cartTotal" class="text-right text-gray-200 font-semibold mt-4"></div>
+            <button id="proceedToShippingBtn" class="btn w-full bg-[#1C7D3F] hover:bg-[#1d5935] text-white py-3 px-4 rounded-lg font-medium transition-all mt-4">Proceed to Shipping</button>
         </div>
     </div>
 
-    <!-- WhatsApp Modal -->
-    <div id="whatsappModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
-        <div class="bg-white rounded-lg max-w-md w-full p-6">
+    <div id="shippingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-[#202c33] rounded-lg max-w-md w-full p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800">Need more help?</h3>
-                <button id="closeWhatsappModal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
+                <h3 class="text-lg font-semibold text-gray-200">Shipping Details</h3>
+                <button id="closeShippingModal" class="btn text-gray-400 hover:text-gray-200" aria-label="Close Shipping"><i class="fas fa-times"></i></button>
             </div>
-            <p class="text-gray-600 mb-6">Our WhatsApp support team can assist you further.</p>
-            <a href="https://wa.me/1234567890" target="_blank" class="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-3 px-4 rounded-lg font-medium transition-colors">
+            <form id="shippingForm" class="space-y-4">
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-200 mb-1">Full Name</label>
+                    <input id="fullName" type="text" class="w-full" placeholder="John Doe" required>
+                </div>
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-200 mb-1">Address</label>
+                    <textarea id="address" class="w-full" placeholder="123 Herbal Lane, Lagos" required></textarea>
+                </div>
+                <div>
+                    <label for="phoneNumber" class="block text-sm font-medium text-gray-200 mb-1">Phone Number</label>
+                    <input id="phoneNumber" type="tel" class="w-full" placeholder="+2348031234567" required>
+                </div>
+                <p id="deliveryEstimate" class="text-sm text-gray-400 mt-2"></p>
+                <button type="submit" id="submitShippingBtn" class="btn w-full bg-[#1C7D3F] hover:bg-[#1d5935] text-white py-3 px-4 rounded-lg font-medium transition-all">Next: Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-[#202c33] rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-200">Payment Details</h3>
+                <button id="closePaymentModal" class="btn text-gray-400 hover:text-gray-200" aria-label="Close Payment"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="paymentForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-200 mb-1">Payment Method</label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center text-sm text-gray-200">
+                            <input type="radio" name="paymentMethod" value="bankTransfer" class="mr-2" checked>
+                            Bank Transfer
+                        </label>
+                        <label class="flex items-center text-sm text-gray-200">
+                            <input type="radio" name="paymentMethod" value="cod" class="mr-2">
+                            Cash on Delivery
+                        </label>
+                    </div>
+                </div>
+                <div id="bankTransferDetails">
+                    <p class="text-sm text-gray-200">Bank Name: Providus Bank</p>
+                    <p class="text-sm text-gray-200">Account Name: David Akinwumi</p>
+                    <p class="text-sm text-gray-200">Account Number: 6500447330</p>
+                    <button type="button" id="copyAccountBtn" class="copy-btn text-[#1C7D3F] mt-2"><i class="fas fa-copy"></i> Copy Account Number</button>
+                    <div class="mt-4">
+                        <label for="paymentProof" class="block text-sm font-medium text-gray-200 mb-1">Upload Proof of Payment</label>
+                        <input id="paymentProof" type="file" accept="image/*,.pdf" class="w-full">
+                    </div>
+                </div>
+                <div>
+                    <label class="flex items-center text-sm text-gray-200">
+                        <input type="checkbox" id="agreementCheckbox" class="mr-2" required>
+                        I agree to the <a href="/terms" target="_blank" class="agreement">Terms and Conditions</a>
+                    </label>
+                </div>
+                <button type="submit" id="submitPaymentBtn" class="btn w-full bg-[#1C7D3F] hover:bg-[#1d5935] text-white py-3 px-4 rounded-lg font-medium transition-all">Submit Order</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="whatsappModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-[#202c33] rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-200">Need Help?</h3>
+                <button id="closeWhatsappModal" class="btn text-gray-400 hover:text-gray-200" aria-label="Close WhatsApp"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="text-gray-400 mb-6">Chat with us on WhatsApp!</p>
+            <a href="https://wa.me/+2347031013103?text=Hi%20I%27m%20from%20Bazuka" target="_blank" class="btn block w-full bg-[#1C7D3F] hover:bg-[#1d5935] text-white text-center py-3 px-4 rounded-lg font-medium transition-all">
                 <i class="fab fa-whatsapp mr-2"></i> Chat on WhatsApp
             </a>
         </div>
     </div>
 
-    <!-- Product Details Modal -->
-    <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4 overflow-y-auto">
-        <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div class="relative">
-                <img id="modalProductImage" src="" alt="Product" class="w-full h-48 object-cover rounded-t-lg">
-                <button id="closeProductModal" class="absolute top-3 right-3 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full w-8 h-8 flex items-center justify-center shadow">
-                    <i class="fas fa-times text-gray-800"></i>
-                </button>
+    <div id="distributorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-[#202c33] rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-200">Become a Bazuka Seller</h3>
+                <button id="closeDistributorModal" class="btn text-gray-400 hover:text-gray-200" aria-label="Close Distributor"><i class="fas fa-times"></i></button>
             </div>
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 id="modalProductName" class="text-xl font-bold text-gray-800"></h3>
-                    <span id="modalProductPrice" class="text-emerald-600 font-bold"></span>
+            <p class="text-gray-400 mb-4">Sell herbs, earn big!</p>
+            <div class="bg-[#1f2a44] p-3 mb-4 rounded-lg">
+                <p class="text-sm text-gray-200">Earned: ₦50,000</p>
+                <p class="text-sm text-gray-200">Sales: 10</p>
+            </div>
+            <form id="distributorForm" class="space-y-4">
+                <div>
+                    <label for="distName" class="block text-sm font-medium text-gray-200 mb-1">Full Name</label>
+                    <input id="distName" type="text" class="w-full p-2 border border-[#2a3942] rounded-lg bg-[#1f2a44] text-gray-200" placeholder="Chinedu Okeke" required>
                 </div>
-                <p id="modalProductDescription" class="text-gray-600 mb-4"></p>
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
-                    <p class="text-sm text-yellow-700"><span class="font-bold">Limited stock:</span> Only <span id="modalStock"></span> left!</p>
+                <div>
+                    <label for="distPhone" class="block text-sm font-medium text-gray-200 mb-1">Phone Number</label>
+                    <input id="distPhone" type="tel" class="w-full p-2 border border-[#2a3942] rounded-lg bg-[#1f2a44] text-gray-200" placeholder="+2348031234567" required>
                 </div>
-                <div class="mb-6">
-                    <h4 class="font-medium text-gray-800 mb-2">Key Benefits:</h4>
-                    <ul id="modalProductBenefits" class="list-disc list-inside text-gray-600 space-y-1"></ul>
-                </div>
-                <div class="flex space-x-3">
-                    <button id="addToCartBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">Add to Cart</button>
-                    <button id="buyNowBtn" class="flex-1 bg-gray-800 hover:bg-gray-900 text-white py-3 px-4 rounded-lg font-medium transition-colors">Buy Now</button>
+                <button type="submit" class="btn w-full bg-[#1C7D3F] hover:bg-[#1d5935] text-white py-3 px-4 rounded-lg font-medium transition-all">Join Now</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
+        <div class="bg-[#202c33] rounded-lg max-w-md w-full">
+            <div class="modal-content p-4">
+                <button id="closeProductModal" class="btn absolute top-3 right-3 text-gray-400 hover:text-gray-200" aria-label="Close Product"><i class="fas fa-times"></i></button>
+                <img id="modalProductImage" src="" alt="" class="w-full h-40 object-cover rounded-lg mb-4">
+                <h3 id="modalProductName" class="text-lg font-semibold text-gray-200 mb-2"></h3>
+                <p id="modalProductPrice" class="text-[#1C7D3F] font-semibold mb-2"></p>
+                <p id="modalProductDescription" class="text-sm text-gray-400 mb-4"></p>
+                <div class="flex space-x-2">
+                    <button id="addToCartBtn" class="btn flex-1 py-2 px-4 rounded-lg font-medium transition-all">Add to Cart</button>
+                    <button id="buyNowBtn" class="btn flex-1 py-2 px-4 rounded-lg font-medium transition-all">Buy Now</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Checkout Modal -->
-    <div id="checkoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4 overflow-y-auto">
-        <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">Complete Your Order</h3>
-                    <button id="closeCheckoutModal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="mb-6">
-                    <h4 class="font-medium text-gray-800 mb-3">Your Items:</h4>
-                    <div id="cartItems" class="space-y-3"></div>
-                </div>
-                <div class="border-t border-gray-200 pt-4 mb-6">
-                    <div class="flex justify-between mb-2"><span class="text-gray-600">Subtotal</span><span id="subtotal" class="font-medium">$0.00</span></div>
-                    <div class="flex justify-between mb-2"><span class="text-gray-600">Shipping</span><span class="font-medium">$5.00</span></div>
-                    <div class="flex justify-between text-lg font-bold mt-3"><span>Total</span><span id="total" class="text-emerald-600">$5.00</span></div>
-                </div>
-                <div class="mb-6">
-                    <h4 class="font-medium text-gray-800 mb-3">Payment Instructions:</h4>
-                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
-                        <p class="text-sm text-gray-600 mb-2">Send payment to this account:</p>
-                        <p class="font-mono bg-white p-2 rounded text-sm mb-1">Account: 1234567890</p>
-                        <p class="font-mono bg-white p-2 rounded text-sm">Bank: Bazuka Herbal Bank</p>
-                    </div>
-                    <div id="uploadArea" class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-4 text-center mb-3">
-                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
-                        <p id="uploadText" class="text-gray-500 text-sm">Click here to upload payment proof</p>
-                        <input type="file" id="paymentProof" class="hidden" accept="image/*">
-                    </div>
-                    <div class="flex items-center mb-4">
-                        <input type="checkbox" id="termsCheck" class="mr-2">
-                        <label for="termsCheck" class="text-sm text-gray-600">I agree to the terms</label>
-                    </div>
-                </div>
-                <button id="confirmPaymentBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50" disabled>Submit Payment Proof</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Shipping Details Modal -->
-    <div id="shippingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4 overflow-y-auto">
-        <div class="bg-white rounded-lg max-w-md w-full p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Shipping Details</h3>
-                <button id="closeShippingModal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input id="fullName" type="text" class="w-full p-2 border rounded-lg" placeholder="John Doe">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                    <textarea id="address" class="w-full p-2 border rounded-lg" placeholder="123 Herbal Lane, Green City"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input id="phoneNumber" type="tel" class="w-full p-2 border rounded-lg" placeholder="+1234567890">
-                </div>
-                <button id="submitShippingBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg font-medium transition-colors mt-6">Submit Shipping Info</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirmation Modal -->
     <div id="confirmationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 p-4">
-        <div class="bg-white rounded-lg max-w-md w-full p-6 text-center">
-            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-check text-emerald-600 text-2xl"></i>
+        <div class="bg-[#202c33] rounded-lg max-w-md w-full p-6 text-center">
+            <div class="w-12 h-12 bg-[#1C7D3F] rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-white text-xl" aria-hidden="true"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-2">Order Confirmed!</h3>
-            <p class="text-gray-600 mb-6">Thank you! Your order has been received and will be processed soon.</p>
-            <div class="flex space-x-3">
-                <button id="closeConfirmationModal" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg font-medium transition-colors">Continue Shopping</button>
-                <button id="downloadInvoiceBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"><i class="fas fa-download mr-2"></i> Invoice</button>
+            <h3 class="text-lg font-semibold text-gray-200 mb-2">Order Confirmed!</h3>
+            <p class="text-gray-400 mb-4">Please rate your experience:</p>
+            <div id="starRating" class="star-rating flex justify-center mb-4">
+                <i class="fas fa-star text-2xl mx-1" data-value="1"></i>
+                <i class="fas fa-star text-2xl mx-1" data-value="2"></i>
+                <i class="fas fa-star text-2xl mx-1" data-value="3"></i>
+                <i class="fas fa-star text-2xl mx-1" data-value="4"></i>
+                <i class="fas fa-star text-2xl mx-1" data-value="5"></i>
             </div>
+            <button id="closeConfirmationModal" class="btn w-full bg-[#1f2a44] hover:bg-[#2a3942] text-gray-200 py-2 px-4 rounded-lg font-medium transition-all">Keep Shopping</button>
         </div>
     </div>
 
-    <script>
-        // DOM Elements
-        const landingPage = document.getElementById('landing');
-        const chatInterface = document.getElementById('chatInterface');
-        const startChatBtn = document.getElementById('startChatBtn');
-        const backToLanding = document.getElementById('backToLanding');
-        const chatContainer = document.getElementById('chatContainer');
-        const viewProductsBtn = document.getElementById('viewProductsBtn');
-        const cartBtn = document.getElementById('cartBtn');
-        const helpBtn = document.getElementById('helpBtn');
-        const whatsappModal = document.getElementById('whatsappModal');
-        const closeWhatsappModal = document.getElementById('closeWhatsappModal');
-        const productModal = document.getElementById('productModal');
-        const closeProductModal = document.getElementById('closeProductModal');
-        const addToCartBtn = document.getElementById('addToCartBtn');
-        const buyNowBtn = document.getElementById('buyNowBtn');
-        const checkoutModal = document.getElementById('checkoutModal');
-        const closeCheckoutModal = document.getElementById('closeCheckoutModal');
-        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
-        const shippingModal = document.getElementById('shippingModal');
-        const closeShippingModal = document.getElementById('closeShippingModal');
-        const submitShippingBtn = document.getElementById('submitShippingBtn');
-        const confirmationModal = document.getElementById('confirmationModal');
-        const closeConfirmationModal = document.getElementById('closeConfirmationModal');
-        const downloadInvoiceBtn = document.getElementById('downloadInvoiceBtn');
-        const termsCheck = document.getElementById('termsCheck');
-        const paymentProof = document.getElementById('paymentProof');
-        const uploadArea = document.getElementById('uploadArea');
-        const uploadText = document.getElementById('uploadText');
-        const fullName = document.getElementById('fullName');
-        const address = document.getElementById('address');
-        const phoneNumber = document.getElementById('phoneNumber');
-        const marketingPopup = document.getElementById('marketingPopup');
-        const closePopup = document.getElementById('closePopup');
-        const popupText = document.getElementById('popupText');
-
-        const products = [
-            { id: 1, name: "Energize Tea", price: 25, description: "A revitalizing blend made from natural herbs to keep you energized all day!", benefits: ["Boosts stamina", "Supports vitality", "100% natural", "No additives"], stock: 4, rating: 4.5, reviews: 42, image: "https://images.unsplash.com/photo-1529310399831-ed472b81d589" },
-            { id: 2, name: "Herbal Energy Capsules", price: 32, description: "Powerful capsules for sustained energy and mental clarity.", benefits: ["Enhances focus", "Natural caffeine alternative", "Supports adrenal health", "Vegan"], stock: 7, rating: 4.2, reviews: 28, image: "https://images.unsplash.com/photo-1595341595379-cf2df1f21083" },
-            { id: 3, name: "Immunity Booster Mix", price: 28, description: "A potent blend to strengthen your immune system naturally.", benefits: ["Rich in antioxidants", "Supports respiratory health", "Contains elderberry", "Great for colds"], stock: 3, rating: 4.7, reviews: 56, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae" },
-            { id: 4, name: "Calm Sleep Tincture", price: 20, description: "A soothing herbal mix to help you relax and sleep better.", benefits: ["Promotes relaxation", "Improves sleep quality", "All natural", "Non-habit forming"], stock: 5, rating: 4.6, reviews: 33, image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c" },
-            { id: 5, name: "Digestive Bliss Powder", price: 22, description: "A gentle herbal powder to support digestion and gut health.", benefits: ["Aids digestion", "Reduces bloating", "Natural ingredients", "Easy to use"], stock: 6, rating: 4.4, reviews: 19, image: "https://images.unsplash.com/photo-1543362906-acfc16c67564" },
-            { id: 6, name: "Vitality Root Tonic", price: 30, description: "A robust tonic to boost overall vitality and wellness.", benefits: ["Enhances energy", "Supports immunity", "Rich in vitamins", "Herbal blend"], stock: 2, rating: 4.8, reviews: 47, image: "https://images.unsplash.com/photo-1596040033229-a9821ebd39b6" }
-        ];
-
-        const botGreetings = [
-            "Oga, welcome o! You don land where herbs dey give power like juju!",
-            "My guy, you don enter Bazuka Herbal Care! Na here energy dey flow like river!",
-            "Bros, how far? These herbal things go make you shine like new kobo!",
-            "Chief, you don come o! These herbs go lift you up like Lagos breeze!",
-            "Abeg, make we gist! These herbal goodies go make your body sing!",
-            "My paddy, you don see am! Bazuka herbs go make you strong like ogbono soup!"
-        ];
-
-        const botProductLines = [
-            "See these fine herbs, ehn! Pick one before dem finish o!",
-            "Oya, check these herbal vibes—dem dey hot like pepper soup!",
-            "Bros, see wetin I get for you—herbs wey dey bam like fela!",
-            "These ones na correct o! Take your time, but no sleep on am!",
-            "Abeg, look these herbal treasures—na fire for your body!",
-            "My guy, these herbs dey call you—choose quick before stock vanish!"
-        ];
-
-        const botCartLines = [
-            "Kai, your cart empty like dry season! Oya, pick something na!",
-            "You get {count} things o! E sweet me—ready to pay?",
-            "Bros, your cart dey smile with {count} items! Time to finish am?",
-            "Oga, you don pack {count} herbs! Make we wrap am up?",
-            "My guy, {count} items dey wait! You go check out or add more?",
-            "See your cart o, {count} herbal goodies! Let’s close this deal na!"
-        ];
-
-        const nigerianNames = [
-            "Chinedu", "Tunde", "Ngozi", "Emeka", "Bisi", "Kemi", "Segun", "Amaka", "Olamide", "Chukwudi",
-            "Sola", "Funke", "Uche", "Tope", "Aisha", "Ifeanyi", "Yemi", "Chika", "Bola", "Obi",
-            "Tayo", "Ada", "Femi", "Nkechi", "Dapo", "Chioma", "Kunle", "Ebere", "Seyi", "Oge",
-            "Wale", "Nneka", "Bayo", "Ugo", "Kelechi", "Tolu", "Ranti", "Onyeka", "Deji", "Ijeoma",
-            "Lekan", "Chinyere", "Temi", "Nonso", "Bimbo", "Kalu", "Shade", "Olu", "Efe", "Ify",
-            "Sani", "Amarachi", "Dotun", "Nnamdi", "Ronke", "Ebuka", "Titi", "Uzor", "Yinka", "Chisom",
-            "Lanre", "Nkiru", "Jide", "Ogechi", "Bukky", "Ikenna", "Funmi", "Chidi", "Remi", "Obinna",
-            "Tola", "Ejiro", "Sammy", "Nedu", "Kike", "Emmanuel", "Tosin", "Uduak", "Yusuf", "Chinwe",
-            "Seun", "Aminatu", "Kola", "Ogonna", "Biodun", "Eunice", "Timi", "Uju", "Damilola", "Chigozie",
-            "Pelumi", "Anita", "Sule", "Ozioma", "Dayo", "Blessing", "Gbenga", "Mmesoma", "Hassan", "Zainab"
-        ];
-
-        let cart = [];
-        let currentProduct = null;
-        let paymentProofFile = null;
-
-        const TELEGRAM_BOT_TOKEN = '7944192630:AAEr7UaD8Lfp377fo7gtiMze7nwKDskCFBg';
-        const TELEGRAM_CHAT_ID = '7285227786';
-
-        function initChat() {
-            landingPage.classList.add('hidden');
-            chatInterface.classList.remove('hidden');
-            setTimeout(() => {
-                addBotMessage(botGreetings[Math.floor(Math.random() * botGreetings.length)]);
-                setTimeout(() => showProductCards(products), 2000);
-                setTimeout(() => {
-                    const randomName = nigerianNames[Math.floor(Math.random() * nigerianNames.length)];
-                    popupText.textContent = `${randomName} dey use Energize Tea to scatter tiredness o! You nko?`;
-                    marketingPopup.classList.remove('hidden');
-                }, 3000);
-            }, 500);
+  <script>
+    // Language Detection
+    const userLang = navigator.language || navigator.userLanguage;
+    const translations = {
+        'en': {
+            welcome: "Welcome to Bazuka! Need energy, sleep, or immunity?",
+            namePrompt: "What's your name? Let's chat!",
+            help: "No worries! Reach us on WhatsApp!"
+        },
+        'fr': {
+            welcome: "Bienvenue chez Bazuka ! Énergie, sommeil ou immunité ?",
+            namePrompt: "Quel est votre nom ? Parlons !",
+            help: "Pas de souci ! Contactez-nous sur WhatsApp !"
+        },
+        'es': {
+            welcome: "¡Bienvenido a Bazuka! ¿Energía, sueño o inmunidad?",
+            namePrompt: "¿Cuál es tu nombre? ¡Hablemos!",
+            help: "¡Sin problema! Contáctanos por WhatsApp !"
         }
+    };
+    const lang = userLang.startsWith('fr') ? 'fr' : userLang.startsWith('es') ? 'es' : 'en';
+    const t = translations[lang];
 
-        function addBotMessage(text, delay = 0) {
-            setTimeout(() => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'chat-message bot-message p-4 self-start';
-                messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div><p>${text}</p></div></div>`;
-                chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, delay);
+    // DOM Elements
+    const landingPage = document.getElementById('landing');
+    const chatInterface = document.getElementById('chatInterface');
+    const testimonialsPage = document.getElementById('testimonials');
+    const floatTestimonial = document.getElementById('floatTestimonial');
+    const cartPreview = document.getElementById('cartPreview');
+    const cartPreviewCount = document.getElementById('cartPreviewCount');
+    const toHome = document.getElementById('toHome');
+    const toCart = document.getElementById('toCart');
+    const toDistributor = document.getElementById('toDistributor');
+    const toHelp = document.getElementById('toHelp');
+    const chatBtn = document.getElementById('chatBtn');
+    const testimonialsBtn = document.getElementById('testimonialsBtn');
+    const backToLanding = document.getElementById('backToLanding');
+    const backToChat = document.getElementById('backToChat');
+    const chatContainer = document.getElementById('chatContainer');
+    const cartCountDisplay = document.getElementById('cartCountDisplay');
+    const cartCount = document.getElementById('cartCount');
+    const buyerModal = document.getElementById('buyerModal');
+    const samplePopup = document.getElementById('samplePopup');
+    const closeSamplePopup = document.getElementById('closeSamplePopup');
+    const claimSample = document.getElementById('claimSample');
+    const whatsappModal = document.getElementById('whatsappModal');
+    const closeWhatsappModal = document.getElementById('closeWhatsappModal');
+    const distributorModal = document.getElementById('distributorModal');
+    const closeDistributorModal = document.getElementById('closeDistributorModal');
+    const distributorForm = document.getElementById('distributorForm');
+    const distName = document.getElementById('distName');
+    const distPhone = document.getElementById('distPhone');
+    const productModal = document.getElementById('productModal');
+    const closeProductModal = document.getElementById('closeProductModal');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    const buyNowBtn = document.getElementById('buyNowBtn');
+    const cartModal = document.getElementById('cartModal');
+    const closeCartModal = document.getElementById('closeCartModal');
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    const proceedToShippingBtn = document.getElementById('proceedToShippingBtn');
+    const shippingModal = document.getElementById('shippingModal');
+    const shippingForm = document.getElementById('shippingForm');
+    const closeShippingModal = document.getElementById('closeShippingModal');
+    const submitShippingBtn = document.getElementById('submitShippingBtn');
+    const paymentModal = document.getElementById('paymentModal');
+    const paymentForm = document.getElementById('paymentForm');
+    const closePaymentModal = document.getElementById('closePaymentModal');
+    const copyAccountBtn = document.getElementById('copyAccountBtn');
+    const paymentProof = document.getElementById('paymentProof');
+    const bankTransferDetails = document.getElementById('bankTransferDetails');
+    const agreementCheckbox = document.getElementById('agreementCheckbox');
+    const submitPaymentBtn = document.getElementById('submitPaymentBtn');
+    const confirmationModal = document.getElementById('confirmationModal');
+    const closeConfirmationModal = document.getElementById('closeConfirmationModal');
+    const starRating = document.getElementById('starRating');
+    const fullName = document.getElementById('fullName');
+    const address = document.getElementById('address');
+    const phoneNumber = document.getElementById('phoneNumber');
+    const deliveryEstimate = document.getElementById('deliveryEstimate');
+    const clickSound = document.getElementById('clickSound');
+
+    // Data
+    const products = [
+        { id: 1, name: "Bazuka Small but mighty", price: 40, description: "Boost your bedroom game with Bazuka! No more 2-minute shame—last longer and feel like a king! African Best Herbs 2023 winner, 100% money-back guarantee. Same-day delivery in Abuja, Lagos, and Accra!", benefits: ["Enhances sexual drive", "Boosts confidence"], stock: 39, rating: 4.8, reviews: 120, image: "img/4-removebg-preview.png", category: "health" },
+        { id: 2, name: "Bazuka Max", price: 28, description: "Strengthen your immune system with this potent blend.", benefits: ["Fights colds", "Rich in antioxidants"], stock: 63, rating: 4.7, reviews: 56, image: "img/6-removebg-preview.png", category: "immunity" },
+        { id: 3, name: "Bazuka Delay Gel", price: 20, description: "A soothing mix for better sleep and relaxation.", benefits: ["Promotes relaxation", "Non-habit forming"], stock: 25, rating: 4.6, reviews: 33, image: "img/g-removebg-preview.png", category: "sleep" }
+    ];
+
+    const botGreetings = [
+        "Hello, my guy! Tired of being a 2-minute man? Bazuka dey here to give you power—tatata your babe till she forget her name! 😎 African Best Herbs 2023, 100% legit with money-back guarantee. We deliver same day for Abuja, Lagos, and Accra!",
+        "Oga, no let woman laugh you for bed again o! Bazuka Small but mighty go make you last long—knack tire, no stress! Check our Instagram @bazukaherbalcare for reviews. 🔥 We ship worldwide, 3-7 days!"
+    ];
+
+    const botProductLines = [
+        "See Bazuka and other hot products wey go change your life!",
+        "These herbs na fire—grab your own now!",
+        "Bazuka and more—your bedroom go thank you!",
+        "Check out these vibes—Bazuka dey lead!"
+    ];
+
+    const botUpsellLines = [
+        "Nice one! Add another Bazuka make e complete the fire! 🔥",
+        "Bazuka dey your cart—add one more make the party sweet! 😎",
+        "Good choice! One more Bazuka go make you a champion! 💪",
+        "You don pick Bazuka—add another for extra power! 🚀"
+    ];
+
+    const nigerianNames = ["Chinedu", "Ngozi", "Tunde", "Funke", "Emeka", "Bisi", "Amaka"];
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let currentProduct = null;
+    let userName = localStorage.getItem('userName') || '';
+    let isNewUser = !localStorage.getItem('hasVisited');
+    let distributor = JSON.parse(localStorage.getItem('distributor')) || null;
+    const nairaRate = 1600;
+    const TELEGRAM_BOT_TOKEN = '7533580094:AAG2kqknNMLLkWneWaobE6qrImghL0sd7_s';
+    const TELEGRAM_CHAT_ID = '7285227786';
+    let lastBotResponseTime = 0;
+
+    // Utility Functions
+    function playClickSound() {
+        try {
+            clickSound.currentTime = 0;
+            clickSound.play();
+        } catch (e) {
+            console.error('Audio error:', e);
         }
+    }
 
-        function showProductCards(products) {
-            const productsDiv = document.createElement('div');
-            productsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'; // Responsive: 1 column on mobile, 2 on md+
-            products.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card bg-white rounded-lg overflow-hidden shadow cursor-pointer border border-gray-100';
-                productCard.innerHTML = `<img src="${product.image}" alt="${product.name}" class="w-full h-32 object-cover"><div class="p-3"><h4 class="font-medium text-gray-800 truncate">${product.name}</h4><div class="flex justify-between items-center mt-1"><span class="text-emerald-600 font-bold">$${product.price}</span><span class="text-xs text-gray-500">${product.stock} left</span></div><button class="view-product-btn mt-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-1 px-3 rounded text-sm transition-colors" data-id="${product.id}">View Details</button></div>`;
-                productsDiv.appendChild(productCard);
-            });
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-message bot-message p-4 self-start';
-            messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div><p>${botProductLines[Math.floor(Math.random() * botProductLines.length)]}</p>${productsDiv.outerHTML}</div></div>`;
-            chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            document.querySelectorAll('.view-product-btn').forEach(btn => {
-                btn.addEventListener('click', () => showProductDetails(parseInt(btn.getAttribute('data-id'))));
-            });
-        }
-
-        function showProductDetails(productId) {
-            const product = products.find(p => p.id === productId);
-            currentProduct = product;
-            document.getElementById('modalProductName').textContent = product.name;
-            document.getElementById('modalProductPrice').textContent = `$${product.price}`;
-            document.getElementById('modalProductDescription').textContent = product.description;
-            document.getElementById('modalProductImage').src = product.image;
-            document.getElementById('modalStock').textContent = product.stock;
-            const benefitsList = document.getElementById('modalProductBenefits');
-            benefitsList.innerHTML = '';
-            product.benefits.forEach(benefit => {
-                const li = document.createElement('li');
-                li.textContent = benefit;
-                benefitsList.appendChild(li);
-            });
-            productModal.classList.remove('hidden');
-            setTimeout(() => {
-                addBotMessage(`Ehen, ${product.name}! Only ${product.stock} dey o—abeg no let am pass you by!`);
-            }, 1500);
-        }
-
-        function addToCart(product) {
-            cart.push(product);
-            updateCart();
-        }
-
-        function updateCart() {
-            const cartItemsContainer = document.getElementById('cartItems');
-            cartItemsContainer.innerHTML = '';
-            let subtotal = 0;
-            cart.forEach(item => {
-                const cartItem = document.createElement('div');
-                cartItem.className = 'flex justify-between items-center py-2 border-b border-gray-100';
-                cartItem.innerHTML = `<div class="flex items-center"><img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded mr-3"><div><h5 class="text-sm font-medium">${item.name}</h5><p class="text-xs text-gray-500">1 × $${item.price}</p></div></div><span class="font-medium">$${item.price}</span>`;
-                cartItemsContainer.appendChild(cartItem);
-                subtotal += item.price;
-            });
-            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${(subtotal + 5).toFixed(2)}`;
-        }
-
-        async function sendToTelegram(message, file = null) {
-            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-            const formData = new FormData();
-            formData.append('chat_id', TELEGRAM_CHAT_ID);
-            formData.append('text', message);
-
+    async function sendToTelegram(message, file = null) {
+        try {
             if (file) {
-                const photoUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
-                const photoFormData = new FormData();
-                photoFormData.append('chat_id', TELEGRAM_CHAT_ID);
-                photoFormData.append('photo', file);
-                const photoResponse = await fetch(photoUrl, { method: 'POST', body: photoFormData });
-                if (!photoResponse.ok) throw new Error('Failed to send photo');
-            }
-
-            const response = await fetch(url, { method: 'POST', body: formData });
-            if (!response.ok) throw new Error('Failed to send message');
-        }
-
-        startChatBtn.addEventListener('click', initChat);
-
-        backToLanding.addEventListener('click', () => {
-            chatInterface.classList.add('hidden');
-            landingPage.classList.remove('hidden');
-            marketingPopup.classList.add('hidden');
-        });
-
-        viewProductsBtn.addEventListener('click', () => {
-            const typingIndicator = showTypingIndicator();
-            setTimeout(() => {
-                hideTypingIndicator(typingIndicator);
-                addBotMessage("Oya, see all the good good we get—abeg no dull!");
-                setTimeout(() => showProductCards(products), 2000);
-            }, 1500);
-        });
-
-        cartBtn.addEventListener('click', () => {
-            const typingIndicator = showTypingIndicator();
-            setTimeout(() => {
-                hideTypingIndicator(typingIndicator);
-                if (cart.length === 0) {
-                    addBotMessage("Kai, your cart empty like dry season! Oya, pick something na!");
-                } else {
-                    const line = botCartLines[Math.floor(Math.random() * botCartLines.length)].replace('{count}', cart.length);
-                    addBotMessage(line);
-                    setTimeout(() => {
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'chat-message bot-message p-4 self-start';
-                        messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div class="flex space-x-2"><button class="checkout-btn bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">Checkout Now</button><button class="continue-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Add More</button></div></div>`;
-                        chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
-                        chatContainer.scrollTop = chatContainer.scrollHeight;
-                        const checkoutBtn = messageDiv.querySelector('.checkout-btn');
-                        const continueBtn = messageDiv.querySelector('.continue-btn');
-                        checkoutBtn.addEventListener('click', () => {
-                            checkoutModal.classList.remove('hidden');
-                            addBotMessage("Oya, let’s wrap this thing up sharp sharp!");
-                        });
-                        continueBtn.addEventListener('click', () => {
-                            addBotMessage("Correct! Make we add more jare!");
-                            setTimeout(() => showProductCards(products), 2000);
-                        });
-                    }, 1500);
+                const docUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`;
+                const docData = new FormData();
+                docData.append('chat_id', TELEGRAM_CHAT_ID);
+                docData.append('document', file);
+                docData.append('caption', message);
+                const docResponse = await fetch(docUrl, { method: 'POST', body: docData });
+                if (!docResponse.ok) {
+                    throw new Error(`Failed to send document: ${await docResponse.text()}`);
                 }
-            }, 1500);
-        });
-
-        helpBtn.addEventListener('click', () => {
-            const typingIndicator = showTypingIndicator();
-            setTimeout(() => {
-                hideTypingIndicator(typingIndicator);
-                addBotMessage("You dey confuse? Abeg, DM us for WhatsApp—na we go solve am!");
-                setTimeout(() => {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'chat-message bot-message p-4 self-start';
-                    messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div><button id="whatsappRedirectBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm transition-colors"><i class="fab fa-whatsapp mr-2"></i> Chat on WhatsApp</button></div></div>`;
-                    chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                    document.getElementById('whatsappRedirectBtn').addEventListener('click', () => whatsappModal.classList.remove('hidden'));
-                }, 1500);
-            }, 1500);
-        });
-
-        addToCartBtn.addEventListener('click', () => {
-            addToCart(currentProduct);
-            productModal.classList.add('hidden');
-            const typingIndicator = showTypingIndicator();
-            setTimeout(() => {
-                hideTypingIndicator(typingIndicator);
-                addBotMessage(`Na so! ${currentProduct.name} don enter your cart o! You wan check out or add more?`);
-                setTimeout(() => {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'chat-message bot-message p-4 self-start';
-                    messageDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div class="flex space-x-2"><button class="checkout-btn bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">Checkout</button><button class="continue-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm transition-colors">Keep Shopping</button></div></div>`;
-                    chatContainer.querySelector('.max-w-3xl').appendChild(messageDiv);
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                    const checkoutBtn = messageDiv.querySelector('.checkout-btn');
-                    const continueBtn = messageDiv.querySelector('.continue-btn');
-                    checkoutBtn.addEventListener('click', () => {
-                        checkoutModal.classList.remove('hidden');
-                        addBotMessage("Oya, let’s finish this thing quick quick!");
-                    });
-                    continueBtn.addEventListener('click', () => {
-                        addBotMessage("You too sabi! Oya, wetin else you want?");
-                        setTimeout(() => showProductCards(products), 2000);
-                    });
-                }, 1500);
-            }, 1500);
-        });
-
-        buyNowBtn.addEventListener('click', () => {
-            addToCart(currentProduct);
-            productModal.classList.add('hidden');
-            checkoutModal.classList.remove('hidden');
-            setTimeout(() => {
-                addBotMessage(`Sharp guy! Straight to checkout with ${currentProduct.name}—let’s do this fast!`);
-            }, 1500);
-        });
-
-        closeProductModal.addEventListener('click', () => {
-            productModal.classList.add('hidden');
-            setTimeout(() => {
-                addBotMessage("Wetin happen na? You no want am again? Another person go chop am o!");
-            }, 1500);
-        });
-
-        closeWhatsappModal.addEventListener('click', () => whatsappModal.classList.add('hidden'));
-
-        closeCheckoutModal.addEventListener('click', () => {
-            checkoutModal.classList.add('hidden');
-            setTimeout(() => {
-                addBotMessage("Ah ah, you dey run? No leave your cart hanging like that na!");
-            }, 1500);
-        });
-
-        closeShippingModal.addEventListener('click', () => {
-            shippingModal.classList.add('hidden');
-            setTimeout(() => {
-                addBotMessage("Abeg, no forget to tell us where to send your package o!");
-            }, 1500);
-        });
-
-        closeConfirmationModal.addEventListener('click', () => {
-            confirmationModal.classList.add('hidden');
-            addBotMessage("Correct! You don shop finish—wetin next?");
-        });
-
-        termsCheck.addEventListener('change', () => {
-            confirmPaymentBtn.disabled = !termsCheck.checked || !paymentProofFile;
-        });
-
-        uploadArea.addEventListener('click', () => {
-            paymentProof.click();
-        });
-
-        paymentProof.addEventListener('change', () => {
-            if (paymentProof.files.length > 0) {
-                paymentProofFile = paymentProof.files[0];
-                uploadText.innerHTML = `<i class="fas fa-check-circle text-green-500 text-xl mr-2"></i>${paymentProofFile.name}`;
-                confirmPaymentBtn.disabled = !termsCheck.checked;
+            } else {
+                const params = new URLSearchParams({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: message,
+                });
+                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?${params.toString()}`;
+                const response = await fetch(url, { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error(`Failed to send message: ${await response.text()}`);
+                }
             }
-        });
+        } catch (e) {
+            console.error('Telegram error:', e.message, e.response ? await e.response.text() : 'No response');
+        }
+    }
 
-        confirmPaymentBtn.addEventListener('click', () => {
-            if (!paymentProofFile) {
-                addBotMessage("Oga, where your payment proof na? Upload am first!");
-                return;
-            }
-            checkoutModal.classList.add('hidden');
-            shippingModal.classList.remove('hidden');
-            setTimeout(() => {
-                addBotMessage("Ehen, I don see your proof! Where we go send these goodies?");
-            }, 1500);
-        });
-
-        submitShippingBtn.addEventListener('click', async () => {
-            if (!fullName.value || !address.value || !phoneNumber.value) {
-                addBotMessage("Abeg, fill everything o! We no fit guess your house!");
-                return;
-            }
-
-            shippingModal.classList.add('hidden');
-            const typingIndicator = showTypingIndicator();
-
-            const orderDetails = cart.map(item => `${item.name} - $${item.price}`).join('\n');
-            const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
-            const shippingInfo = `Full Name: ${fullName.value}\nAddress: ${address.value}\nPhone: ${phoneNumber.value}`;
-            const message = `New Order:\n\nItems:\n${orderDetails}\n\nTotal: $${total.toFixed(2)}\n\nShipping:\n${shippingInfo}`;
-
-            try {
-                await sendToTelegram(message, paymentProofFile);
-                setTimeout(() => {
-                    hideTypingIndicator(typingIndicator);
-                    addBotMessage("Chai, you too much! Order don land—thanks for choosing Bazuka!");
-                    confirmationModal.classList.remove('hidden');
-                    cart = [];
-                    paymentProofFile = null;
-                    fullName.value = '';
-                    address.value = '';
-                    phoneNumber.value = '';
-                    uploadText.innerHTML = 'Click here to upload payment proof';
-                    termsCheck.checked = false;
-                    confirmPaymentBtn.disabled = true;
-                }, 1500);
-            } catch (error) {
-                hideTypingIndicator(typingIndicator);
-                addBotMessage("Oops! Something scatter—try again or ping us for WhatsApp!");
-                console.error(error);
-            }
-        });
-
-        downloadInvoiceBtn.addEventListener('click', () => {
-            alert("Invoice downloaded! (Demo - no real file)");
-        });
-
-        closePopup.addEventListener('click', () => marketingPopup.classList.add('hidden'));
-
-        function showTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'chat-message bot-message p-4 self-start';
-            typingDiv.innerHTML = `<div class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-leaf text-white text-sm"></i></div><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
-            chatContainer.querySelector('.max-w-3xl').appendChild(typingDiv);
+    function addBotMessage(text, delay = 0) {
+        const now = Date.now();
+        if (now - lastBotResponseTime < 3000) return;
+        lastBotResponseTime = now;
+        setTimeout(() => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot-message';
+            messageDiv.innerHTML = `<p>${text}</p>`;
+            const container = chatContainer.querySelector('.max-w-3xl') || chatContainer;
+            container.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
-            return typingDiv;
+        }, delay);
+    }
+
+    function addUserMessage(text, delay = 0) {
+        setTimeout(() => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message user-message';
+            messageDiv.innerHTML = `<p>${text}</p>`;
+            const container = chatContainer.querySelector('.max-w-3xl') || chatContainer;
+            container.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, delay);
+    }
+
+    function updateCart() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = count;
+        cartPreviewCount.textContent = count;
+        cartPreviewCount.classList.toggle('hidden', count === 0);
+        cartCountDisplay.textContent = `Cart: ${count}`;
+    }
+
+    function showProductCards(products) {
+        const productsDiv = document.createElement('div');
+        productsDiv.className = 'grid gap-4 mt-4';
+        products.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.className = `product-card p-4 ${product.stock < 3 ? 'low-stock' : ''}`;
+            productCard.innerHTML = `
+                <img src="${product.image}" alt="${product.name}" class="w-full h-24 object-cover rounded-lg mb-2" onerror="this.src='placeholder.png';">
+                <p class="text-xs text-gray-400">${product.benefits[0]}</p>
+                <h4 class="font-semibold text-gray-200 truncate text-sm">${product.name}</h4>
+                <div class="flex items-center mt-1">
+                    <span class="text-yellow-400 text-xs">★${product.rating}</span>
+                    <span class="text-xs text-gray-400 ml-1">(${product.reviews})</span>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                    <span class="text-[var(--primary-color)] font-semibold text-sm">₦${(product.price * nairaRate).toFixed(0)}</span>
+                    <span class="text-xs ${product.stock < 3 ? 'text-red-600' : 'text-gray-400'}">${product.stock} left!</span>
+                </div>
+                <button class="view-product-btn btn mt-2 w-full bg-[var(--chat-bg)] hover:bg-[#2a3942] text-gray-200 py-1 px-3 rounded-lg text-xs transition-all" data-id="${product.id}" aria-label="View ${product.name} details">View Details</button>
+                <button class="buy-now-btn btn mt-2 w-full bg-[var(--primary-color)] hover:bg-[var(--primary-hover)] text-white py-1 px-3 rounded-lg text-xs transition-all" data-id="${product.id}" aria-label="Buy ${product.name} now">Buy Now</button>`;
+            productsDiv.appendChild(productCard);
+        });
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message bot-message';
+        const productLine = botProductLines[Math.floor(Math.random() * botProductLines.length)];
+        messageDiv.innerHTML = `<p>${productLine}</p>${productsDiv.outerHTML}`;
+        const container = chatContainer.querySelector('.max-w-3xl') || chatContainer;
+        container.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showProductDetails(productId) {
+        console.log('Attempting to show product details for ID:', productId); // Debug
+        const product = products.find(p => p.id === productId);
+        if (!product) {
+            console.error('Product not found for ID:', productId);
+            addBotMessage("Oops! Product not found.");
+            return;
+        }
+        currentProduct = product;
+        const modalProductName = document.getElementById('modalProductName');
+        const modalProductPrice = document.getElementById('modalProductPrice');
+        const modalProductImage = document.getElementById('modalProductImage');
+        const modalProductDescription = document.getElementById('modalProductDescription');
+
+        if (!modalProductName || !modalProductPrice || !modalProductImage || !modalProductDescription) {
+            console.error('Modal elements not found:', { modalProductName, modalProductPrice, modalProductImage, modalProductDescription });
+            addBotMessage("Error displaying product details. Please try again.");
+            return;
         }
 
-        function hideTypingIndicator(typingDiv) {
-            typingDiv.remove();
+        modalProductName.textContent = product.name;
+        modalProductPrice.textContent = `₦${(product.price * nairaRate).toFixed(0)}`;
+        modalProductImage.src = product.image;
+        modalProductImage.alt = product.name;
+        modalProductDescription.textContent = product.description;
+
+        if (!productModal) {
+            console.error('Product modal element not found');
+            addBotMessage("Error opening product details. Please try again.");
+            return;
         }
-    </script>
+
+        productModal.classList.remove('hidden');
+        console.log('Product modal should now be visible'); // Debug
+        const message = `${product.name} is a vibe! Only ${product.stock} left!`;
+        addBotMessage(message);
+    }
+
+    function addToCart(product) {
+        const existingItem = cart.find(item => item.id === product.id);
+        if (existingItem) {
+            existingItem.quantity++;
+        } else {
+            cart.push({ ...product, quantity: 1 });
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+        const message = `${product.name} added to cart!`;
+        addBotMessage(message);
+    }
+
+    function updateCartModal() {
+        cartItems.innerHTML = '';
+        if (cart.length === 0) {
+            cartItems.innerHTML = '<p class="text-gray-400">Your cart is empty!</p>';
+            cartTotal.textContent = '';
+            proceedToShippingBtn.classList.add('hidden');
+            return;
+        }
+        let total = 0;
+        cart.forEach((item, index) => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'cart-item';
+            itemDiv.innerHTML = `
+                <div class="flex items-center">
+                    <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover mr-2" onerror="this.src='placeholder.png';">
+                    <div>
+                        <p>${item.name}</p>
+                        <p>₦${(itemTotal * nairaRate).toFixed(0)} (x${item.quantity})</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="remove-from-cart-btn btn remove-btn" data-index="${index}">-</button>
+                    <button class="add-more-btn btn" data-index="${index}">+</button>
+                    <button class="delete-from-cart-btn btn remove-btn" data-index="${index}"><i class="fas fa-trash"></i></button>
+                </div>`;
+            cartItems.appendChild(itemDiv);
+        });
+        cartTotal.textContent = `Total: ₦${(total * nairaRate).toFixed(0)}`;
+        proceedToShippingBtn.classList.remove('hidden');
+    }
+
+    function showCartModal() {
+        updateCartModal();
+        cartModal.classList.remove('hidden');
+    }
+
+    function startBuyerAlerts() {
+        setInterval(() => {
+            const name = nigerianNames[Math.floor(Math.random() * nigerianNames.length)];
+            const product = products[Math.floor(Math.random() * products.length)];
+            const message = `${name} just grabbed ${product.name}!`;
+            buyerModal.textContent = message;
+            buyerModal.classList.remove('hidden');
+            setTimeout(() => buyerModal.classList.add('hidden'), 3000);
+        }, 15000);
+    }
+
+    function startStockDrop() {
+        setInterval(() => {
+            const product = products[Math.floor(Math.random() * products.length)];
+            if (product.stock > 1) {
+                product.stock--;
+                const message = `${product.name} now has only ${product.stock} left!`;
+                addBotMessage(message);
+            }
+        }, 20000);
+    }
+
+    function updateDeliveryEstimate() {
+        const location = address.value.toLowerCase();
+        if (location.includes('lagos') || location.includes('abuja') || location.includes('accra')) {
+            deliveryEstimate.textContent = 'Same-day delivery available!';
+        } else {
+            deliveryEstimate.textContent = '3-7 days worldwide';
+        }
+    }
+
+    // Toggle Payment Proof Requirement
+    function togglePaymentProofRequirement() {
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        if (!paymentMethod) {
+            console.error('No payment method selected');
+            return;
+        }
+        if (paymentMethod === 'cod') {
+            bankTransferDetails.classList.add('hidden');
+            paymentProof.removeAttribute('required');
+        } else {
+            bankTransferDetails.classList.remove('hidden');
+            paymentProof.setAttribute('required', 'true');
+        }
+    }
+
+    // Initialization
+    function initChat() {
+        try {
+            landingPage.classList.add('hidden');
+            testimonialsPage.classList.add('hidden');
+            chatInterface.classList.remove('hidden');
+            document.body.classList.add('chat-active');
+            updateCart();
+            setTimeout(() => {
+                const greeting = userName ? `Hey ${userName}, welcome back! Ready to knack tire? 😎` : botGreetings[Math.floor(Math.random() * botGreetings.length)];
+                addBotMessage(greeting);
+                if (!userName) {
+                    setTimeout(() => {
+                        addBotMessage(t.namePrompt);
+                        setTimeout(() => {
+                            const inputDiv = document.createElement('div');
+                            inputDiv.className = 'chat-message bot-message';
+                            inputDiv.innerHTML = `
+                                <input id="userNameInput" type="text" placeholder="Your name..." class="w-full p-2 border border-[#2a3942] rounded-lg bg-[#1f2a44] text-gray-200 mt-2">
+                                <button id="submitName" class="btn text-white py-1 px-3 rounded mt-2 text-sm">Send</button>`;
+                            const container = chatContainer.querySelector('.max-w-3xl') || chatContainer;
+                            container.appendChild(inputDiv);
+                            const submitName = document.getElementById('submitName');
+                            submitName.addEventListener('click', () => {
+                                playClickSound();
+                                userName = document.getElementById('userNameInput').value.trim();
+                                if (userName) {
+                                    localStorage.setItem('userName', userName);
+                                    inputDiv.remove();
+                                    addUserMessage(userName);
+                                    addBotMessage(`Nice one, ${userName}! Let's get you that bedroom power! 💪`);
+                                    setTimeout(() => showProductCards(products), 1000);
+                                }
+                            });
+                        }, 1000);
+                    }, 1000);
+                } else {
+                    setTimeout(() => showProductCards(products), 1000);
+                }
+                if (isNewUser) {
+                    setTimeout(() => {
+                        samplePopup.classList.remove('hidden');
+                        localStorage.setItem('hasVisited', 'true');
+                        isNewUser = false;
+                    }, 5000);
+                }
+                startBuyerAlerts();
+                startStockDrop();
+            }, 500);
+        } catch (e) {
+            console.error('initChat error:', e);
+            addBotMessage("Oops, something went wrong! Try again.");
+        }
+    }
+
+    function initTestimonials() {
+        try {
+            landingPage.classList.add('hidden');
+            chatInterface.classList.add('hidden');
+            testimonialsPage.classList.remove('hidden');
+            document.body.classList.remove('chat-active');
+        } catch (e) {
+            console.error('initTestimonials error:', e);
+            addBotMessage("Error loading testimonials!");
+        }
+    }
+
+    // Event Listeners
+    function setupLandingPageButtons() {
+        if (chatBtn) {
+            chatBtn.removeEventListener('click', initChat);
+            chatBtn.addEventListener('click', () => {
+                playClickSound();
+                console.log('Chat button clicked');
+                initChat();
+            });
+        } else {
+            console.error('Chat button not found');
+        }
+
+        if (testimonialsBtn) {
+            testimonialsBtn.removeEventListener('click', initTestimonials);
+            testimonialsBtn.addEventListener('click', () => {
+                playClickSound();
+                console.log('Testimonials button clicked');
+                initTestimonials();
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded, setting up buttons');
+        setupLandingPageButtons();
+
+        // Add event listeners for payment method radio buttons
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+            radio.addEventListener('change', togglePaymentProofRequirement);
+        });
+    });
+
+    backToLanding.addEventListener('click', () => {
+        playClickSound();
+        chatInterface.classList.add('hidden');
+        landingPage.classList.remove('hidden');
+        document.body.classList.remove('chat-active');
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        toHome.classList.add('active');
+    });
+
+    backToChat.addEventListener('click', () => {
+        playClickSound();
+        testimonialsPage.classList.add('hidden');
+        chatInterface.classList.remove('hidden');
+        document.body.classList.add('chat-active');
+    });
+
+    floatTestimonial.addEventListener('click', () => {
+        playClickSound();
+        initTestimonials();
+    });
+
+    cartPreview.addEventListener('click', () => {
+        playClickSound();
+        if (cart.length === 0) {
+            addBotMessage("Your cart is empty! Add some Bazuka power!");
+        } else {
+            showCartModal();
+        }
+    });
+
+    toHome.addEventListener('click', () => {
+        playClickSound();
+        landingPage.classList.remove('hidden');
+        chatInterface.classList.add('hidden');
+        testimonialsPage.classList.add('hidden');
+        document.body.classList.remove('chat-active');
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        toHome.classList.add('active');
+    });
+
+    toCart.addEventListener('click', () => {
+        playClickSound();
+        if (cart.length === 0) {
+            addBotMessage("Cart empty! Add some Bazuka!");
+        } else {
+            showCartModal();
+            addBotMessage(`You have ${cart.reduce((sum, item) => sum + item.quantity, 0)} item${cart.length > 1 ? 's' : ''} in your cart!`);
+        }
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        toCart.classList.add('active');
+    });
+
+    toDistributor.addEventListener('click', () => {
+        playClickSound();
+        distributorModal.classList.remove('hidden');
+        addBotMessage("Want to sell Bazuka? Join us!");
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        toDistributor.classList.add('active');
+    });
+
+    toHelp.addEventListener('click', () => {
+        playClickSound();
+        whatsappModal.classList.remove('hidden');
+        addBotMessage(t.help);
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        toHelp.classList.add('active');
+    });
+
+    chatContainer.addEventListener('click', (e) => {
+        const viewBtn = e.target.closest('.view-product-btn');
+        const buyBtn = e.target.closest('.buy-now-btn');
+        if (viewBtn) {
+            playClickSound();
+            const productId = parseInt(viewBtn.getAttribute('data-id'));
+            console.log('View Details clicked for product ID:', productId); // Debug
+            showProductDetails(productId);
+        }
+        if (buyBtn) {
+            playClickSound();
+            const productId = parseInt(buyBtn.getAttribute('data-id'));
+            console.log('Buy Now clicked for product ID:', productId); // Debug
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                addToCart(product);
+                const upsell = botUpsellLines[Math.floor(Math.random() * botUpsellLines.length)];
+                addBotMessage(upsell);
+                setTimeout(() => showCartModal(), 1000);
+            }
+        }
+    });
+
+    addToCartBtn.addEventListener('click', () => {
+        playClickSound();
+        if (currentProduct) {
+            addToCart(currentProduct);
+            productModal.classList.add('hidden');
+            const upsell = botUpsellLines[Math.floor(Math.random() * botUpsellLines.length)];
+            addBotMessage(upsell);
+        }
+    });
+
+    buyNowBtn.addEventListener('click', () => {
+        playClickSound();
+        if (currentProduct) {
+            addToCart(currentProduct);
+            productModal.classList.add('hidden');
+            showCartModal();
+        }
+    });
+
+    closeProductModal.addEventListener('click', () => {
+        playClickSound();
+        productModal.classList.add('hidden');
+    });
+
+    cartItems.addEventListener('click', (e) => {
+        const removeBtn = e.target.closest('.remove-from-cart-btn');
+        const addMoreBtn = e.target.closest('.add-more-btn');
+        const deleteBtn = e.target.closest('.delete-from-cart-btn');
+        if (removeBtn) {
+            playClickSound();
+            const index = parseInt(removeBtn.getAttribute('data-index'));
+            cart[index].quantity--;
+            if (cart[index].quantity === 0) {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+            updateCartModal();
+        }
+        if (addMoreBtn) {
+            playClickSound();
+            const index = parseInt(addMoreBtn.getAttribute('data-index'));
+            cart[index].quantity++;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+            updateCartModal();
+        }
+        if (deleteBtn) {
+            playClickSound();
+            const index = parseInt(deleteBtn.getAttribute('data-index'));
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+            updateCartModal();
+        }
+    });
+
+    closeCartModal.addEventListener('click', () => {
+        playClickSound();
+        cartModal.classList.add('hidden');
+    });
+
+    proceedToShippingBtn.addEventListener('click', () => {
+        playClickSound();
+        cartModal.classList.add('hidden');
+        shippingModal.classList.remove('hidden');
+        fullName.value = localStorage.getItem('fullName') || '';
+        address.value = localStorage.getItem('address') || '';
+        phoneNumber.value = localStorage.getItem('phoneNumber') || '';
+        updateDeliveryEstimate();
+        addBotMessage("Where should we send your Bazuka?");
+    });
+
+    shippingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        playClickSound();
+        if (!fullName.value || !address.value || !phoneNumber.value) {
+            addBotMessage("Please fill in all shipping details!");
+            return;
+        }
+        localStorage.setItem('fullName', fullName.value);
+        localStorage.setItem('address', address.value);
+        localStorage.setItem('phoneNumber', phoneNumber.value);
+        shippingModal.classList.add('hidden');
+        paymentModal.classList.remove('hidden');
+        togglePaymentProofRequirement();
+        addBotMessage("Shipping saved! Please make payment.");
+    });
+
+    closeShippingModal.addEventListener('click', () => {
+        playClickSound();
+        shippingModal.classList.add('hidden');
+    });
+
+    address.addEventListener('input', updateDeliveryEstimate);
+
+    paymentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        playClickSound();
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        if (!paymentMethod) {
+            addBotMessage("Please select a payment method!");
+            return;
+        }
+        if (paymentMethod === 'bankTransfer' && !paymentProof.files.length) {
+            addBotMessage("Please upload proof of payment for bank transfer!");
+            return;
+        }
+        if (!agreementCheckbox.checked) {
+            addBotMessage("Please agree to the terms!");
+            return;
+        }
+        const orderDetails = cart.map(item => `${item.name} - ₦${(item.price * item.quantity * nairaRate).toFixed(0)} (x${item.quantity})`).join('\n');
+        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const shippingInfo = `Name: ${fullName.value}\nAddress: ${address.value}\nPhone: ${phoneNumber.value}`;
+        let message;
+        if (paymentMethod === 'cod') {
+            message = `New Order (Cash on Delivery):\n\nItems:\n${orderDetails}\n\nTotal: ₦${(total * nairaRate).toFixed(0)}\n\nShipping:\n${shippingInfo}`;
+            await sendToTelegram(message);
+        } else {
+            message = `New Order (Bank Transfer):\n\nItems:\n${orderDetails}\n\nTotal: ₦${(total * nairaRate).toFixed(0)}\n\nShipping:\n${shippingInfo}\n\nPayment: Providus Bank, David Akinwumi, 6500447330`;
+            await sendToTelegram(message, paymentProof.files[0]);
+        }
+        paymentModal.classList.add('hidden');
+        confirmationModal.classList.remove('hidden');
+        addBotMessage(`Order confirmed, ${userName || 'you'}! Thanks for shopping! You go knack tire! 😎`);
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+    });
+
+    closePaymentModal.addEventListener('click', () => {
+        playClickSound();
+        paymentModal.classList.add('hidden');
+    });
+
+    copyAccountBtn.addEventListener('click', () => {
+        playClickSound();
+        navigator.clipboard.writeText('6500447330').then(() => {
+            addBotMessage("Account number copied!");
+        }).catch(err => {
+            console.error('Copy failed:', err);
+        });
+    });
+
+    closeConfirmationModal.addEventListener('click', () => {
+        playClickSound();
+        confirmationModal.classList.add('hidden');
+        showProductCards(products);
+    });
+
+    starRating.addEventListener('click', async (e) => {
+        const star = e.target.closest('i');
+        if (star) {
+            const rating = parseInt(star.getAttribute('data-value'));
+            await sendToTelegram(`Rating from ${userName || 'User'}: ${rating}/5 stars`);
+            confirmationModal.classList.add('hidden');
+            addBotMessage(`Thanks for the ${rating}-star rating! You go enjoy Bazuka well!`);
+            showProductCards(products);
+        }
+    });
+
+    closeSamplePopup.addEventListener('click', () => {
+        playClickSound();
+        samplePopup.classList.add('hidden');
+    });
+
+    claimSample.addEventListener('click', () => {
+        playClickSound();
+        samplePopup.classList.add('hidden');
+        addBotMessage("Free sample added to your next order!");
+    });
+
+    distributorForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        playClickSound();
+        const name = distName.value.trim();
+        const phone = distPhone.value.trim();
+        if (!name || !phone) {
+            addBotMessage("Please fill in name and phone!");
+            return;
+        }
+        distributor = {
+            id: `BZK${Math.floor(Math.random() * 10000)}`,
+            name,
+            phone,
+            referralCode: `BAZUKA-${name.split(' ')[0].toUpperCase()}`
+        };
+        localStorage.setItem('distributor', JSON.stringify(distributor));
+        const sellerMessage = `New Seller:\nName: ${name}\nPhone: ${phone}\nReferral Code: ${distributor.referralCode}`;
+        await sendToTelegram(sellerMessage);
+        distributorModal.classList.add('hidden');
+        addBotMessage(`Welcome, ${distributor.name}! Your code is ${distributor.referralCode}. We'll reach out to you soon!`);
+    });
+
+    closeDistributorModal.addEventListener('click', () => {
+        playClickSound();
+        distributorModal.classList.add('hidden');
+    });
+
+    closeWhatsappModal.addEventListener('click', () => {
+        playClickSound();
+        whatsappModal.classList.add('hidden');
+    });
+
+    // Initialize
+    updateCart();
+    toHome.classList.add('active');
+</script>
 </body>
 </html>
