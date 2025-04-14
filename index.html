@@ -307,7 +307,7 @@
         .buyer-modal {
             position: fixed;
             top: 128px;
-            left: 12px;
+            left: 50%;
             background: var(--primary-color);
             color: #fff;
             padding: 8px 16px;
@@ -709,7 +709,7 @@
             <p class="text-lg text-gray-200 mb-6">The wonder working herbs 👌💯</p>
             <p class="text-sm text-gray-300 mb-4">Certified by NAFDAC</p>
             <button id="chatBtn" class="btn bg-[#1C7D3F] hover:bg-[#1d5935] text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all" aria-label="Start Chat">Check Now</button>
-            <button id="testimonialsBtn" class="btn bg-[#1f2a44] hover:bg-[#2a3942] text-gray-200 font-semibold py-3 px-8 rounded-lg shadow-lg transition-all mt-4" aria-label="View Testimonials">See Testimonials</button>
+            <!-- <button id="testimonialsBtn" class="btn bg-[#1f2a44] hover:bg-[#2a3942] text-gray-200 font-semibold py-3 px-8 rounded-lg shadow-lg transition-all mt-4" aria-label="View Testimonials">See Testimonials</button> -->
         </div>
     </section>
 
@@ -1038,11 +1038,50 @@
     const deliveryEstimate = document.getElementById('deliveryEstimate');
     const clickSound = document.getElementById('clickSound');
 
-    // Data
-    const products = [
-        { id: 1, name: "Bazuka Small but mighty", price: 40, description: "Boost your bedroom game with Bazuka! No more 2-minute shame—last longer and feel like a king! African Best Herbs 2023 winner, 100% money-back guarantee. Same-day delivery in Abuja, Lagos, and Accra!", benefits: ["Enhances sexual drive", "Boosts confidence"], stock: 39, rating: 4.8, reviews: 120, image: "img/4-removebg-preview.png", category: "health" },
-        { id: 2, name: "Bazuka Max", price: 28, description: "Strengthen your immune system with this potent blend.", benefits: ["Fights colds", "Rich in antioxidants"], stock: 63, rating: 4.7, reviews: 56, image: "img/6-removebg-preview.png", category: "immunity" },
-        { id: 3, name: "Bazuka Delay Gel", price: 20, description: "A soothing mix for better sleep and relaxation.", benefits: ["Promotes relaxation", "Non-habit forming"], stock: 25, rating: 4.6, reviews: 33, image: "img/g-removebg-preview.png", category: "sleep" }
+   // Data
+   const products = [
+    {
+        id: 1,
+        name: "Bazuka Max (100ml)",
+        price: 12.5,
+        description: "🔥 Small bottle, BIG performance. Boost your stamina, last longer, and feel like a king 👑. 🌿 100% herbal with no side effects. 🥄 Take 2 tablespoons 30 minutes before sex. 🏆 Award-winning African formula. 🚚 Same-day delivery in Abuja, Lagos & Accra. 💰 Money-back guarantee.",
+        benefits: ["Enhances stamina", "Boosts confidence", "Fights premature release"],
+        stock: 39,
+        rating: 4.8,
+        reviews: 120,
+        image: "img/4-removebg-preview.png",
+        category: "health"
+    },
+    {
+        id: 2,
+        name: "Bazuka Max (500ml)",
+        price: 50,
+        description: "💪 Built for men who want consistent results. Extra strength formula for peak bedroom performance. 🌿 Herbal & safe. 🥄 Take 2 tablespoons 30 minutes before sex. 👑 Long-lasting supply. 🚚 Same-day delivery in Abuja, Lagos & Accra. 💰 100% money-back guarantee.",
+        benefits: ["Increases endurance", "Strengthens libido", "All-natural"],
+        stock: 63,
+        rating: 4.9,
+        reviews: 86,
+        image: "img/6-removebg-preview.png",
+        category: "performance"
+    },
+    {
+        id: 3,
+        name: "Bazuka Delay Gel",
+        price: 12.5,
+        description: "🧊 No more early finishes. Just apply directly to your 🍆 before sex and enjoy extended pleasure. 🌿 Herbal, non-irritating, and fast-acting. 💦 Works without pills. 🚚 Delivered discreetly – same-day in Abuja, Lagos & Accra.",
+        benefits: ["Delays ejaculation", "Fast-acting", "Easy to use"],
+        stock: 25,
+        rating: 4.7,
+        reviews: 49,
+        image: "img/g-removebg-preview.png",
+        category: "delay"
+    }
+];
+    const distributors = [
+        { name: "Chinedu", phone: "+2348031234567", earnings: 50000, sales: 10 },
+        { name: "Ngozi", phone: "+2347012345678", earnings: 30000, sales: 5 },
+        { name: "Tunde", phone: "+233123456789", earnings: 70000, sales: 15 },
+        { name: "Funke", phone: "+2349012345678", earnings: 20000, sales: 3 }
     ];
 
     const botGreetings = [
